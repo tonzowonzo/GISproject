@@ -25,20 +25,24 @@ def preprocess_image(filename, prepare_for="time_series", sharpen=True):
     '''
     # Load the image in rgb format.
     img = Image.open(filename).convert("RGB")
+    
     # Turn the image into a numpy array for manipulation.
     img_array = np.array(img)
     print(img_array.shape)
+    
     # Display Color bands.
     # Red.
     plt.imshow(img_array[:, :, 0], cmap="binary")
     plt.title("Red")
     plt.colorbar()
     plt.show()
+    
     # Green.
     plt.imshow(img_array[:, :, 1], cmap="binary")
     plt.title("Green")
     plt.colorbar()
     plt.show()
+    
     # Blue.
     plt.imshow(img_array[:, :, 2], cmap="binary")
     plt.title("Blue")
@@ -76,15 +80,25 @@ def preprocess_image(filename, prepare_for="time_series", sharpen=True):
     # Atmospheric correction (dark object subtraction).
     # Only required for time series, or multiple row data.
     # Find the brightest pixels
+    # Get the brightness of the image.
+    luminosity = img.convert("L")
+    luminosity = np.array(luminosity)
     # Convert to greyscale to calculate brightness
-    if prepare_for in ["time_series", "multiple_zones"]:
-        luminosity = img.convert("L")
-        luminosity = np.array(luminosity)
+    if prepare_for in ["time_series", "multiple_zones"]
         # Find the top brightest value and indice in the array.
         max_indices = np.unravel_index(luminosity.argmax(), luminosity.shape)
         print(max_indices)
+        
+    # Cloud masking.
+    cloud_brightness_threshold = 25
+    cloudless_array = luminosity[luminosity >= 255 - 25]
     
+    # Or this method.
+    # Where it is a cloud make the mask array value 1, else 0.
+    cloudless_array = luminosity[np.where(luminosity >= 255 - 25[1, 0])]
 
+    # Apply the cloud mask to normal colour image.
+    
 
 
 
