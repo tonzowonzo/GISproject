@@ -13,10 +13,10 @@ from scipy import ndimage
 #plt.axis("off")
 
 # Import example images.
-image1 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20170828_20170914_01_T1.tif"
+image1 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_195026_20170819_20170826_01_T1.tif"
 image2 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20171015_20171024_01_T1.tif"
 # Load in tif image.
-def preprocess_image(filename, prepare_for="time_series", sharpen=True):
+def preprocess_image(filename, prepare_for="stationary", sharpen=False, show_images=False):
     '''
     Preprocess the image in preparation for use in classification algorithms.
     
@@ -29,40 +29,7 @@ def preprocess_image(filename, prepare_for="time_series", sharpen=True):
     # Turn the image into a numpy array for manipulation.
     img_array = np.array(img)
     print(img_array.shape)
-    
-    # Display Color bands.
-    # Red.
-    plt.imshow(img_array[:, :, 0], cmap="binary")
-    plt.title("Red")
-    plt.colorbar()
-    plt.show()
-    
-    # Green.
-    plt.imshow(img_array[:, :, 1], cmap="binary")
-    plt.title("Green")
-    plt.colorbar()
-    plt.show()
-    
-    # Blue.
-    plt.imshow(img_array[:, :, 2], cmap="binary")
-    plt.title("Blue")
-    plt.colorbar()
-    plt.show()
-    
-    # Compare green matrixes of two images.
-#    if filename2 is not None:
-#        img2 = Image.open(filename2).convert("RGB")
-#        img_array2 = np.array(img2)
-#        difference = abs(img_array[:, :, 1] - img_array2[:, :, 1])
-#        plt.imshow(difference, cmap="binary")
-#        plt.title("Difference in greeness between two images")
-#        plt.colorbar()
-#        plt.show()
-        
-    # Display rgb composite.
-    plt.imshow(img_array)
-    plt.show()
-    
+
     # Sharpen Image.
     if sharpen:
         blurred_img = ndimage.gaussian_filter(img, 3)
@@ -84,23 +51,62 @@ def preprocess_image(filename, prepare_for="time_series", sharpen=True):
     luminosity = img.convert("L")
     luminosity = np.array(luminosity)
     # Convert to greyscale to calculate brightness
-    if prepare_for in ["time_series", "multiple_zones"]
+    if prepare_for in ["time_series", "multiple_zones"]:
         # Find the top brightest value and indice in the array.
         max_indices = np.unravel_index(luminosity.argmax(), luminosity.shape)
         print(max_indices)
         
     # Cloud masking.
-    cloud_brightness_threshold = 25
-    cloudless_array = luminosity[luminosity >= 255 - 25]
+    masked_image = luminosity.copy()
+    print(masked_image.mean(), masked_image.max(), masked_image.std())
+    masked_image[masked_image >= (masked_image.mean() * 0.8) + (masked_image.std()*1.2)] = 255
+    masked_image[masked_image <= masked_image.mean() - 20] = 255
+
     
-    # Or this method.
-    # Where it is a cloud make the mask array value 1, else 0.
-    cloudless_array = luminosity[np.where(luminosity >= 255 - 25[1, 0])]
-
-    # Apply the cloud mask to normal colour image.
     
+    # Display all of the images created.
+    if show_images:
+        # Display Color bands.
+        # Red.
+        plt.imshow(img_array[:, :, 0], cmap="binary")
+        plt.title("Red")
+        plt.colorbar()
+        plt.show()
+        
+        # Green.
+        plt.imshow(img_array[:, :, 1], cmap="binary")
+        plt.title("Green")
+        plt.colorbar()
+        plt.show()
+        
+        # Blue.
+        plt.imshow(img_array[:, :, 2], cmap="binary")
+        plt.title("Blue")
+        plt.colorbar()
+        plt.show()
+        
 
+        
+        # Show luminosity.
+        plt.imshow(luminosity)
+        plt.title("Luminosity")
+        plt.colorbar()
+        plt.show()
+        
+        # Display masked cloud brightness image.
+        plt.figure(figsize=(12, 12))
+        plt.imshow(masked_image, cmap="binary")
+        plt.colorbar()
+        plt.title("Masked Clouds")
+        plt.show()
+    
+        # Display rgb composite.
+        plt.figure(figsize=(12, 12))
+        plt.imshow(img_array)
+        plt.title("RGB composite")
+        plt.show()
 
+    return masked_image
 
 
 
@@ -113,26 +119,50 @@ def preprocess_image(filename, prepare_for="time_series", sharpen=True):
 
 # Greyscale conversion.
 
-img_array = preprocess_image(image1)
+#img_array = preprocess_image(image1)
 
 
 def load_images(path):
     '''
     Loads all of the images into an array.
     '''
-    images = pd.DataFrame(index=[x for x in range(100)], columns=["dates", "image_arrays"])
+    images = pd.DataFrame(index=[x for x in range(100)], columns=["dates", "image_arrays", "indiv_pixel"])
     i = 0
+    images["indiv_pixel"] = 0
 
     for file in os.listdir(path):
         if file.endswith("T1.tif"):
             # Load in image array.
-            img = Image.open(os.path.join(path, file)).convert("RGB")
-            img_array = np.array(img)
+            img = preprocess_image(os.path.join(path, file))
             # Get the dates of each image.
             split_file = file.split("_")
             # Add the data to a dataframe.
-            images.dates[i] = split_file[3]
-            images.image_arrays[i] = img_array
+            images.dates[i] = pd.to_datetime(split_file[3], format="%Y%m%d", errors="ignore")
+            images.image_arrays[i] = img
             i+=1
+    images = images.dropna()
     return images
-df = load_images("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1")
+#df = load_images("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1")
+
+def create_time_series(path):
+    '''
+    Create a dataframe of timeseries values and plot the data.
+    '''
+    df = load_images(path)
+    # Do time series on just one pixel.
+    for i, image in enumerate(df.image_arrays):
+        x, y = image.shape
+        print(image[int(5001)][int(5001)])
+        df["indiv_pixel"][i] = image[int(5001)][int(5001)]
+    df = df.sort_values(by="dates")
+    df[~(df["indiv_pixel"] < 240)]
+    X = df["dates"]
+    y = df["indiv_pixel"]
+    print(X)
+    print(y)
+
+    # Plot the results for one pixel.
+    plt.plot(X, y)
+    return df
+        
+df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1")
