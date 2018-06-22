@@ -2,23 +2,28 @@
 import os
 import cv2
 import PIL
-from PIL import Image, ImageStat, ImageFilter
+from PIL import Image, ImageStat, ImageFilter, ImageFile
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy
 from scipy import ndimage
-
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 # Matplotlib defaults
 #plt.axis("off")
 
 # Import example images.
 image1 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_193027_20150917_20180522_01_T1.tif"
-image2 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20171015_20171024_01_T1.tif"
+image2 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_195027_20170718_20170727_01_T1.tif"
+test_mask = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20140719_20170421_01_T1_QB.tif"
 landsat_path = "194"
-landsat_row = "025"
+landsat_row = "026"
+
+# Latitude and Longitude of field area.
+latitude = 48.5
+longitude = 9.0
 # Load in tif image.
-def preprocess_image(filename, prepare_for="stationary", sharpen=False, show_images=False):
+def preprocess_image(filename, maskname=None, prepare_for="stationary", sharpen=False, show_images=False):
     '''
     Preprocess the image in preparation for use in classification algorithms.
     
@@ -28,9 +33,17 @@ def preprocess_image(filename, prepare_for="stationary", sharpen=False, show_ima
     # Load the image in rgb format.
     img = Image.open(filename).convert("RGB")
     img = img.resize((8000, 8000))
+    
     # Turn the image into a numpy array for manipulation.
     img_array = np.array(img)
     print(img_array.shape)
+    
+    # Load in mask.
+    mask = Image.open(maskname)
+    # Turn the image into a numpy array for manipulation.
+    mask = mask.resize((8000, 8000))
+    mask_array = np.array(mask)
+    print(mask_array.shape)
 
     # Sharpen Image.
     if sharpen:
@@ -146,7 +159,7 @@ def preprocess_image(filename, prepare_for="stationary", sharpen=False, show_ima
         plt.title("RGB composite")
         plt.show()
 
-    return masked_image, masked_green
+    return masked_image, masked_green, mask_array
 
 
 
@@ -159,7 +172,7 @@ def preprocess_image(filename, prepare_for="stationary", sharpen=False, show_ima
 
 # Greyscale conversion.
 
-#img_array = preprocess_image(image1)
+img_array, green_array, mask_array = preprocess_image(image2, maskname=test_mask)
 
 
 def load_images(path, landsat_row, landsat_path):
@@ -182,7 +195,12 @@ def load_images(path, landsat_row, landsat_path):
             img, masked_green = preprocess_image(os.path.join(path, file))
             
             # Add the data to a dataframe.
-            images.dates[i] = pd.to_datetime(split_file[3], format="%Y%m%d", errors="ignore")
+            # Hours and minutes.
+            hours_minutes = split_file[4]
+            hours_minutes = hours_minutes[4:]
+            print(hours_minutes)
+            time = split_file[3] + hours_minutes
+            images.dates[i] = pd.to_datetime(time, format="%Y%m%d%H%M", errors="ignore")
             images.image_arrays[i] = img
             images.green_array[i] = masked_green
             i+=1
@@ -220,4 +238,4 @@ def create_time_series(path, landsat_row, landsat_path):
     plt.plot(X, y_green)
     return df
         
-df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
+#df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
