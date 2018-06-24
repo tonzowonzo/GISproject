@@ -14,8 +14,8 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Import example images.
 image1 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_193027_20150917_20180522_01_T1.tif"
-image2 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_195027_20170718_20170727_01_T1.tif"
-test_mask = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20140719_20170421_01_T1_QB.tif"
+image2 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20171031_20171109_01_T1.tif"
+test_mask = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20171031_20171109_01_T1_QB.jpg"
 landsat_path = "194"
 landsat_row = "026"
 
@@ -23,7 +23,7 @@ landsat_row = "026"
 latitude = 48.5
 longitude = 9.0
 # Load in tif image.
-def preprocess_image(filename, maskname=None, prepare_for="stationary", sharpen=False, show_images=False):
+def preprocess_image(filename, maskname, prepare_for="stationary", show_images=False):
     '''
     Preprocess the image in preparation for use in classification algorithms.
     
@@ -33,7 +33,7 @@ def preprocess_image(filename, maskname=None, prepare_for="stationary", sharpen=
     # Load the image in rgb format.
     img = Image.open(filename).convert("RGB")
     img = img.resize((8000, 8000))
-    
+
     # Turn the image into a numpy array for manipulation.
     img_array = np.array(img)
     print(img_array.shape)
@@ -43,79 +43,31 @@ def preprocess_image(filename, maskname=None, prepare_for="stationary", sharpen=
     # Turn the image into a numpy array for manipulation.
     mask = mask.resize((8000, 8000))
     mask_array = np.array(mask)
-    print(mask_array.shape)
-
-    # Sharpen Image.
-    if sharpen:
-        blurred_img = ndimage.gaussian_filter(img, 3)
-        
-        filter_blurred_img = ndimage.gaussian_filter(blurred_img, 1)
-        
-        alpha = 30
-        sharpened = blurred_img + alpha * (blurred_img - filter_blurred_img)
-        print(sharpened.shape)
-        plt.imshow(sharpened)
-        plt.title("Sharpened")
-        plt.show()
+    mask_array = mask_array == 255
     
-
+    # Turn the mask into an actual mask.
+    final_mask = np.ma.masked_array(mask_array, mask_array != 0)
+    
+    # Return masked img.
+    masked_color = img_array.copy()
+    masked_color[final_mask] = 0
+    
+#    plt.figure(figsize=(12, 12))
+#    plt.imshow(masked_color)
+#    plt.show()
+    
     # Atmospheric correction (dark object subtraction).
     # Only required for time series, or multiple row data.
     # Find the brightest pixels
     # Get the brightness of the image.
     luminosity = img.convert("L")
     luminosity = np.array(luminosity)
+    
     # Convert to greyscale to calculate brightness
     if prepare_for in ["time_series", "multiple_zones"]:
         # Find the top brightest value and indice in the array.
         max_indices = np.unravel_index(luminosity.argmax(), luminosity.shape)
         print(max_indices)
-        
-    # Cloud masking.
-    masked_image = luminosity.copy()
-    
-    # Mask out the background.
-    masked_image = np.ma.masked_array(masked_image, masked_image == 0)
-    masked_image = np.ma.masked_array(masked_image, masked_image >= 240)
-    print(masked_image.mean(), masked_image.max(), masked_image.std())
-    # Find the clouds in the image.
-    masked_image[masked_image >= (masked_image.mean() * 0.8) + (masked_image.std()*1.2)] = 255
-    masked_image[masked_image <= masked_image.mean() * 2] = 255
-#    plt.imshow(masked_image, cmap="binary")
-#    dplt.colorbar()
-#    plt.show()
-    # Mask array to mask the other arrays with.
-    cloud_mask = masked_image == 255
-    
-    # Masked green.
-    green = img_array[:, :, 1]
-    masked_green = np.ma.masked_where(np.ma.getmask(cloud_mask), green)
-#    plt.imshow(masked_green, cmap="binary")
-#    plt.colorbar()
-#    plt.show()
-    # Mask colour image.
-    # Mask array for 3d image.   
-    masked_color = img_array.copy()
-    masked_color[cloud_mask] = 0
-    
-    # Display masked cloud brightness image.
-#    plt.figure(figsize=(12, 12))
-#    plt.imshow(masked_image, cmap="binary")
-#    plt.colorbar()
-#    plt.title("Masked Clouds")
-#    plt.show()    
-#
-#    # Display rgb composite.
-#    plt.figure(figsize=(12, 12))
-#    plt.imshow(img_array)
-#    plt.title("RGB composite")
-#    plt.show()
-#    
-#    # Display masked rgb.    
-#    plt.figure(figsize=(12, 12))
-#    plt.imshow(masked_color)
-#    plt.title("RGB composite with mask")
-#    plt.show()
     
     # Display all of the images created.
     if show_images:
@@ -148,7 +100,7 @@ def preprocess_image(filename, maskname=None, prepare_for="stationary", sharpen=
         
         # Display masked cloud brightness image.
         plt.figure(figsize=(12, 12))
-        plt.imshow(masked_image, cmap="binary")
+        plt.imshow(mask_array, cmap="binary")
         plt.colorbar()
         plt.title("Masked Clouds")
         plt.show()
@@ -159,7 +111,7 @@ def preprocess_image(filename, maskname=None, prepare_for="stationary", sharpen=
         plt.title("RGB composite")
         plt.show()
 
-    return masked_image, masked_green, mask_array
+    return masked_color, luminosity, final_mask
 
 
 
@@ -172,7 +124,7 @@ def preprocess_image(filename, maskname=None, prepare_for="stationary", sharpen=
 
 # Greyscale conversion.
 
-img_array, green_array, mask_array = preprocess_image(image2, maskname=test_mask)
+#img_array, green_array, mask_array = preprocess_image(image2, maskname=test_mask)
 
 
 def load_images(path, landsat_row, landsat_path):
@@ -192,8 +144,8 @@ def load_images(path, landsat_row, landsat_path):
         if file.endswith("T1.tif") and split_file[2]==landsat_path_row:
             # Load in image array.
             print(file)
-            img, masked_green = preprocess_image(os.path.join(path, file))
-            
+            maskname = file[:-4] + "_QB.jpg"
+            img, _, _ = preprocess_image(os.path.join(path, file), os.path.join(path, maskname))
             # Add the data to a dataframe.
             # Hours and minutes.
             hours_minutes = split_file[4]
@@ -202,8 +154,10 @@ def load_images(path, landsat_row, landsat_path):
             time = split_file[3] + hours_minutes
             images.dates[i] = pd.to_datetime(time, format="%Y%m%d%H%M", errors="ignore")
             images.image_arrays[i] = img
-            images.green_array[i] = masked_green
+            images.green_array[i] = img[:, :, 1]
             i+=1
+
+            
     images = images.dropna()
     return images
 #df = load_images("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1")
@@ -214,18 +168,19 @@ def create_time_series(path, landsat_row, landsat_path):
     '''
     df = load_images(path, landsat_row, landsat_path)
     # Do time series on just one pixel.
-    for i, image in enumerate(df.image_arrays):
-        width, height = image.shape
-        print(image[int(5001)][int(5001)])
-        df["indiv_pixel"][i] = image[int(5001)][int(5001)]
-
+#    for i, image in enumerate(df.image_arrays):
+#        width, height, _ = image.shape
+#        print(image[int(5001)][int(5001)])
+#        df["indiv_pixel"][i] = image[int(5001)][int(5001)]
+#
     # Time series for green.
     for i, image in enumerate(df.green_array):
         width, height = image.shape
-        print(image[int(5001)][int(5001)])
-        df["green_level"][i] = image[int(5001)][int(5001)]
+        print(image[int(4452)][int(936)])
+        df["green_level"][i] = image[int(4452)][int(936)]
     df = df.sort_values(by="dates")
-    df = df[~(df["indiv_pixel"] > 240)]
+#    df = df[~(df["indiv_pixel"] > 0)]
+    df = df[df["green_level"] > 0]
     # Plot X values.
     X = df["dates"]
     # Data for plotting.
@@ -238,4 +193,28 @@ def create_time_series(path, landsat_row, landsat_path):
     plt.plot(X, y_green)
     return df
         
-#df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
+df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
+
+def plot_series(X, y, title, xlabel, ylabel, plot_type="timeseries"):
+    plt.figure(figsize=(12, 12))
+    plt.plot(X, y)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
+    if plot_type == "map":
+        plt.colorbar()
+        
+    plt.show()
+    
+    
+    
+plot_series(df2["dates"], df2["green_level"], "Pixel green value over time",
+            "Time (year)", "Green pixel value")
+
+plt.figure(figsize=(12, 12))
+plt.imshow(df2["image_arrays"][4])
+plt.show()
+print(df2["dates"][4])
+
+    
