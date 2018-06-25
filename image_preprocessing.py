@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy
+from skimage.measure import block_reduce
 from scipy import ndimage
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 # Matplotlib defaults
@@ -23,7 +24,7 @@ landsat_row = "026"
 latitude = 48.5
 longitude = 9.0
 # Load in tif image.
-def preprocess_image(filename, maskname, prepare_for="stationary", show_images=False):
+def preprocess_image(filename, maskname, prepare_for="stationary", show_images=True):
     '''
     Preprocess the image in preparation for use in classification algorithms.
     
@@ -32,7 +33,7 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
     '''
     # Load the image in rgb format.
     img = Image.open(filename).convert("RGB")
-    img = img.resize((8000, 8000))
+#    img = img.resize((8000, 8000))
 
     # Turn the image into a numpy array for manipulation.
     img_array = np.array(img)
@@ -41,7 +42,7 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
     # Load in mask.
     mask = Image.open(maskname)
     # Turn the image into a numpy array for manipulation.
-    mask = mask.resize((8000, 8000))
+#    mask = mask.resize((8000, 8000))
     mask_array = np.array(mask)
     mask_array = mask_array == 255
     
@@ -72,31 +73,29 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
     # Display all of the images created.
     if show_images:
         # Display Color bands.
-        # Red.
-        plt.imshow(img_array[:, :, 0], cmap="binary")
-        plt.title("Red")
-        plt.colorbar()
-        plt.show()
+#        # Red.
+#        plt.imshow(img_array[:, :, 0], cmap="binary")
+#        plt.title("Red")
+#        plt.colorbar()
+#        plt.show()
+#        
+#        # Green.
+#        plt.imshow(img_array[:, :, 1], cmap="binary")
+#        plt.title("Green")
+#        plt.colorbar()
+#        plt.show()
+#        
+#        # Blue.
+#        plt.imshow(img_array[:, :, 2], cmap="binary")
+#        plt.title("Blue")
+#        plt.colorbar()
+#        plt.show()
         
-        # Green.
-        plt.imshow(img_array[:, :, 1], cmap="binary")
-        plt.title("Green")
-        plt.colorbar()
-        plt.show()
-        
-        # Blue.
-        plt.imshow(img_array[:, :, 2], cmap="binary")
-        plt.title("Blue")
-        plt.colorbar()
-        plt.show()
-        
-
-        
-        # Show luminosity.
-        plt.imshow(luminosity)
-        plt.title("Luminosity")
-        plt.colorbar()
-        plt.show()
+#        # Show luminosity.
+#        plt.imshow(luminosity)
+#        plt.title("Luminosity")
+#        plt.colorbar()
+#        plt.show()
         
         # Display masked cloud brightness image.
         plt.figure(figsize=(12, 12))
@@ -104,14 +103,25 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
         plt.colorbar()
         plt.title("Masked Clouds")
         plt.show()
-    
+        
+        # Display masked rgb.
+        plt.figure(figsize=(12, 12))
+        plt.imshow(masked_color)
+        plt.title("RGB composite")
+        plt.show()
+        
         # Display rgb composite.
         plt.figure(figsize=(12, 12))
         plt.imshow(img_array)
         plt.title("RGB composite")
         plt.show()
 
-    return masked_color, luminosity, final_mask
+    def pool_image(arr, kernel_size=(2, 2, 1)):
+        return block_reduce(arr, kernel_size, np.max)
+        
+    masked_color = pool_image(masked_color)
+    print(masked_color.shape)
+    return masked_color, img_array, final_mask
 
 
 
@@ -124,7 +134,7 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
 
 # Greyscale conversion.
 
-#img_array, green_array, mask_array = preprocess_image(image2, maskname=test_mask)
+#masked_array, image_array, mask_array = preprocess_image(image2, maskname=test_mask)
 
 
 def load_images(path, landsat_row, landsat_path):
@@ -176,8 +186,8 @@ def create_time_series(path, landsat_row, landsat_path):
     # Time series for green.
     for i, image in enumerate(df.green_array):
         width, height = image.shape
-        print(image[int(4452)][int(936)])
-        df["green_level"][i] = image[int(4452)][int(936)]
+        print(image[int(2226)][int(468)])
+        df["green_level"][i] = image[int(2226)][int(468)]
     df = df.sort_values(by="dates")
 #    df = df[~(df["indiv_pixel"] > 0)]
     df = df[df["green_level"] > 0]
@@ -196,25 +206,30 @@ def create_time_series(path, landsat_row, landsat_path):
 df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
 
 def plot_series(X, y, title, xlabel, ylabel, plot_type="timeseries"):
+    
     plt.figure(figsize=(12, 12))
-    plt.plot(X, y)
+    
+
+    
+    if plot_type == "map":
+        plt.imshow(X)
+    
+    elif plot_type == "timeseries":
+        plt.plot(X, y)
+        
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    
-    if plot_type == "map":
-        plt.colorbar()
-        
     plt.show()
     
     
     
-plot_series(df2["dates"], df2["green_level"], "Pixel green value over time",
-            "Time (year)", "Green pixel value")
-
-plt.figure(figsize=(12, 12))
-plt.imshow(df2["image_arrays"][4])
-plt.show()
-print(df2["dates"][4])
+#plot_series(df2["dates"], df2["green_level"], "Pixel green value over time",
+#            "Time (year)", "Green pixel value")
+#
+#plt.figure(figsize=(12, 12))
+#plt.imshow(df2["image_arrays"][4])
+#plt.show()
+#print(df2["dates"][4])
 
     
