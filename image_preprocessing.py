@@ -11,7 +11,8 @@ from skimage.measure import block_reduce
 from scipy import ndimage
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 # Matplotlib defaults
-#plt.axis("off")
+plt.style.use("fivethirtyeight")
+plt.grid("off")
 
 # Import example images.
 image1 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_193027_20150917_20180522_01_T1.tif"
@@ -24,7 +25,7 @@ landsat_row = "026"
 latitude = 48.5
 longitude = 9.0
 # Load in tif image.
-def preprocess_image(filename, maskname, prepare_for="stationary", show_images=True):
+def preprocess_image(filename, maskname, prepare_for="stationary", show_images=False):
     '''
     Preprocess the image in preparation for use in classification algorithms.
     
@@ -115,8 +116,9 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=T
         plt.imshow(img_array)
         plt.title("RGB composite")
         plt.show()
-
-    def pool_image(arr, kernel_size=(2, 2, 1)):
+    
+    # Reduce the size of the image for faster processing.
+    def pool_image(arr, kernel_size=(9, 9, 1)):
         return block_reduce(arr, kernel_size, np.max)
         
     masked_color = pool_image(masked_color)
@@ -186,8 +188,8 @@ def create_time_series(path, landsat_row, landsat_path):
     # Time series for green.
     for i, image in enumerate(df.green_array):
         width, height = image.shape
-        print(image[int(2226)][int(468)])
-        df["green_level"][i] = image[int(2226)][int(468)]
+        print(image[int(495)][int(104)])
+        df["green_level"][i] = image[int(495)][int(104)]
     df = df.sort_values(by="dates")
 #    df = df[~(df["indiv_pixel"] > 0)]
     df = df[df["green_level"] > 0]
@@ -203,7 +205,7 @@ def create_time_series(path, landsat_row, landsat_path):
     plt.plot(X, y_green)
     return df
         
-df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
+df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 921056/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
 
 def plot_series(X, y, title, xlabel, ylabel, plot_type="timeseries"):
     
@@ -216,7 +218,8 @@ def plot_series(X, y, title, xlabel, ylabel, plot_type="timeseries"):
     
     elif plot_type == "timeseries":
         plt.plot(X, y)
-        
+    
+    plt.grid("off")
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -224,12 +227,13 @@ def plot_series(X, y, title, xlabel, ylabel, plot_type="timeseries"):
     
     
     
-#plot_series(df2["dates"], df2["green_level"], "Pixel green value over time",
-#            "Time (year)", "Green pixel value")
-#
-#plt.figure(figsize=(12, 12))
-#plt.imshow(df2["image_arrays"][4])
-#plt.show()
-#print(df2["dates"][4])
+plot_series(df2["dates"], df2["green_level"], "Pixel green value over time",
+            "Time (year)", "Green pixel value")
+
+plt.figure(figsize=(12, 12))
+plt.grid("off")
+plt.imshow(df2["image_arrays"][4])
+plt.show()
+print(df2["dates"][4])
 
     
