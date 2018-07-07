@@ -18,6 +18,7 @@ plt.grid("off")
 image1 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 917016/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_193027_20150917_20180522_01_T1.tif"
 image2 = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20171031_20171109_01_T1.tif"
 test_mask = "C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 914722/Landsat 8 OLI_TIRS C1 Level-1/LC08_L1TP_194026_20171031_20171109_01_T1_QB.jpg"
+# We need 194026 and 195026.
 landsat_path = "194"
 landsat_row = "026"
 
@@ -25,7 +26,7 @@ landsat_row = "026"
 latitude = 48.5
 longitude = 9.0
 # Load in tif image.
-def preprocess_image(filename, maskname, prepare_for="stationary", show_images=False):
+def preprocess_image(filename, maskname, prepare_for="stationary", show_images=True):
     '''
     Preprocess the image in preparation for use in classification algorithms.
     
@@ -41,15 +42,20 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
     print(img_array.shape)
     
     # Load in mask.
-    mask = Image.open(maskname)
+    
+    array_rgb_diff = abs(img_array[:, :, 0] - img_array[:, :, 1] - img_array[:, :, 2])
+    mask = array_rgb_diff <= 120
+    mask2 = array_rgb_diff >= 190
+#    mask3 = Image.open(maskname)
+    
+#    mask = np.ma.masked_where(abs(img_array[:, :, 0] - img_array[:, :, 1]) <= 40, img_array[:, :, 0])
     # Turn the image into a numpy array for manipulation.
 #    mask = mask.resize((8000, 8000))
     mask_array = np.array(mask)
-    mask_array = mask_array == 255
-    
+    mask_array2 = np.array(mask2)
     # Turn the mask into an actual mask.
     final_mask = np.ma.masked_array(mask_array, mask_array != 0)
-    
+    final_mask = np.ma.masked_array(final_mask, mask_array2 != 0)
     # Return masked img.
     masked_color = img_array.copy()
     masked_color[final_mask] = 0
@@ -62,14 +68,14 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
     # Only required for time series, or multiple row data.
     # Find the brightest pixels
     # Get the brightness of the image.
-    luminosity = img.convert("L")
-    luminosity = np.array(luminosity)
+#    luminosity = img.convert("L")
+#    luminosity = np.array(luminosity)
     
     # Convert to greyscale to calculate brightness
-    if prepare_for in ["time_series", "multiple_zones"]:
-        # Find the top brightest value and indice in the array.
-        max_indices = np.unravel_index(luminosity.argmax(), luminosity.shape)
-        print(max_indices)
+#    if prepare_for in ["time_series", "multiple_zones"]:
+#        # Find the top brightest value and indice in the array.
+#        max_indices = np.unravel_index(luminosity.argmax(), luminosity.shape)
+#        print(max_indices)
     
     # Display all of the images created.
     if show_images:
@@ -99,23 +105,33 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
 #        plt.show()
         
         # Display masked cloud brightness image.
-        plt.figure(figsize=(12, 12))
-        plt.imshow(mask_array, cmap="binary")
-        plt.colorbar()
-        plt.title("Masked Clouds")
-        plt.show()
-        
-        # Display masked rgb.
+#        plt.figure(figsize=(12, 12))
+#        plt.imshow(mask, cmap="binary")
+#        plt.colorbar()
+#        plt.title("Masked Clouds")
+#        plt.show()
+#        
+#        # Display masked rgb.
         plt.figure(figsize=(12, 12))
         plt.imshow(masked_color)
         plt.title("RGB composite")
         plt.show()
-        
+#       
         # Display rgb composite.
+#        plt.figure(figsize=(12, 12))
+#        plt.imshow(img_array)
+#        plt.title("RGB composite")
+#        plt.show()
+    
+        # Difference between red, green and blue.
         plt.figure(figsize=(12, 12))
-        plt.imshow(img_array)
+        plt.imshow(array_rgb_diff)
+        plt.colorbar()
         plt.title("RGB composite")
         plt.show()
+
+    
+        
     
     # Reduce the size of the image for faster processing.
     def pool_image(arr, kernel_size=(9, 9, 1)):
@@ -123,7 +139,9 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
         
     masked_color = pool_image(masked_color)
     print(masked_color.shape)
-    return masked_color, img_array, final_mask
+    print(type(masked_color))
+          
+    return masked_color
 
 
 
@@ -139,7 +157,7 @@ def preprocess_image(filename, maskname, prepare_for="stationary", show_images=F
 #masked_array, image_array, mask_array = preprocess_image(image2, maskname=test_mask)
 
 
-def load_images(path, landsat_row, landsat_path):
+def load_images(path, landsat_row, landsat_path, save_images=False):
     '''
     Loads all of the images into an array.
     '''
@@ -157,7 +175,12 @@ def load_images(path, landsat_row, landsat_path):
             # Load in image array.
             print(file)
             maskname = file[:-4] + "_QB.jpg"
-            img, _, _ = preprocess_image(os.path.join(path, file), os.path.join(path, maskname))
+            img = preprocess_image(os.path.join(path, file), os.path.join(path, maskname))
+            # Save the img.
+            if save_images:
+                img = Image.fromarray(img)
+                img.save("C:/Users/Tim/Desktop/GIS/GISproject/landsat/" + file + ".jpg")
+                img = np.array(img)
             # Add the data to a dataframe.
             # Hours and minutes.
             hours_minutes = split_file[4]
@@ -205,7 +228,7 @@ def create_time_series(path, landsat_row, landsat_path):
     plt.plot(X, y_green)
     return df
         
-df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/Bulk Order 921056/Landsat 8 OLI_TIRS C1 Level-1", landsat_row, landsat_path)
+df2 = create_time_series("C:/Users/Tim/Desktop/GIS/GISproject/landsat/2010_to_2018_landsat5-8", landsat_row, landsat_path)
 
 def plot_series(X, y, title, xlabel, ylabel, plot_type="timeseries"):
     
