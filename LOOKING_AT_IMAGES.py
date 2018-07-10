@@ -10,7 +10,7 @@ import os
 # Column order for the df.
 columns = ["date", "day_of_year", "r", "g", "b", "label"]
 df = pd.DataFrame(columns=columns)
-field_areas = ["EC1", "EC2", "EC3"]
+field_areas = ["EC1", "EC2", "EC3", "Cloud", "CloudShadow", "Urban", "Water"]
 
 # Function for getting the label.
 def get_label(field_area, date):
@@ -143,7 +143,20 @@ def get_label(field_area, date):
             label = "WW"
         elif date < datetime.datetime(2018, 1, 1):
             label = "WB"
-    
+            
+    elif field_area == "Cloud":
+        label = "Cloud"
+        
+    elif field_area == "CloudShadow":
+        label = "CloudShadow"
+        
+    elif field_area == "Urban":
+        label = "Urban"
+        
+    elif field_area == "Water":
+        label = "Water"
+            
+            
     return label
             
             
@@ -187,10 +200,10 @@ for field in field_areas:
             
 # Predict with SVM.
 # Import libraries
-from sklearn.svm import SVC
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-
+from sklearn.metrics import accuracy_score, precision_score, confusion_matrix
 # Get X and y data.
 X = df.iloc[:, 1:-1]
 y = df.iloc[:, -1]
@@ -201,3 +214,40 @@ encoder = LabelEncoder()
 encoder.fit(y)
 y = encoder.transform(y)
 
+# Train-test split.
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+# Train a random forest.
+rand_for = RandomForestClassifier()
+
+# This has already been done
+# Optimise the classifier with a grid search.
+#from sklearn.model_selection import GridSearchCV
+#param_grid = [{'n_estimators': [3, 5, 10, 30, 100, 200, 500], 
+#             'bootstrap':[False, True]}]
+#grid_search = GridSearchCV(rand_for, param_grid, cv=5, scoring="accuracy")
+#grid_search.fit(X_train, y_train)
+
+# Best params?
+#best_params = grid_search.best_params_
+
+
+# Fit the classifier.
+rand_for = RandomForestClassifier(bootstrap=True, n_estimators=200)
+rand_for.fit(X_train, y_train)
+
+# Feature importances.
+print(rand_for.feature_importances_)
+
+# Predict values
+y_pred = rand_for.predict(X_test)
+
+# Get scores of the classifier.
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+# Confusion matrix.
+cm = confusion_matrix(y_test, y_pred)
+
+# Turn encoded values back to non-encoded for comparison
+y_test = list(encoder.inverse_transform(y_test))
+y_pred = list(encoder.inverse_transform(y_pred))
