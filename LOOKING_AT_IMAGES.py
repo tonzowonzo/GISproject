@@ -6,6 +6,8 @@ import pandas as pd
 import datetime
 import os
 
+# Set working directory.
+os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 # Constants.
 # Column order for the df.
 columns = ["date", "day_of_year", "r", "g", "b", "label"]
@@ -203,7 +205,7 @@ for field in field_areas:
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 # Get X and y data.
 X = df.iloc[:, 1:-1]
 y = df.iloc[:, -1]
@@ -233,7 +235,7 @@ rand_for = RandomForestClassifier()
 
 
 # Fit the classifier.
-rand_for = RandomForestClassifier(bootstrap=True, n_estimators=200)
+rand_for = RandomForestClassifier(bootstrap=True, n_estimators=200, random_state=42)
 rand_for.fit(X_train, y_train)
 
 # Feature importances.
@@ -244,10 +246,16 @@ y_pred = rand_for.predict(X_test)
 
 # Get scores of the classifier.
 accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred, average="weighted")
+recall = recall_score(y_test, y_pred, average="weighted")
+
 # Confusion matrix.
 cm = confusion_matrix(y_test, y_pred)
 
 # Turn encoded values back to non-encoded for comparison
-y_test = list(encoder.inverse_transform(y_test))
-y_pred = list(encoder.inverse_transform(y_pred))
+y_test_text = list(encoder.inverse_transform(y_test))
+y_pred_text = list(encoder.inverse_transform(y_pred))
+
+# Save the model.
+from sklearn.externals import joblib
+joblib.dump(rand_for, "random_forest.pkl")
