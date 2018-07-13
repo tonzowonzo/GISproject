@@ -20,7 +20,7 @@ from sklearn.ensemble import RandomForestClassifier
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
 # Load the model.
-model = joblib.load("random_forest.pkl")
+model = joblib.load("random_forest_2.pkl")
 
 # Analyse an image.
 def analyse_image(image_file):
@@ -41,7 +41,7 @@ def analyse_image(image_file):
 
     
     # Pool image down to a smaller size.
-    def pool_image(arr, kernel_size=(2, 2, 1)):
+    def pool_image(arr, kernel_size=(4, 4, 1)):
         return block_reduce(arr, kernel_size, np.max)
         
     
@@ -71,7 +71,7 @@ def analyse_image(image_file):
             
             # Ignore analysis if there's a mask.
             if r == 0 and g == 0 and b == 0:
-                pred_array[i][j] = 8
+                pred_array[i][j] = 9
                 counter +=1
             
                 
@@ -88,7 +88,7 @@ def analyse_image(image_file):
                 
     return pred_array
     
-
+#true_img = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20141014.tif")
 pred_array = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20141014.tif")
 
 def transform_prediction_array(pred_array):
@@ -104,16 +104,18 @@ def transform_prediction_array(pred_array):
         2: Cloud
             
         3: Cloud Shadow
-            
-        4: Urban
-            
-        5: WR
-            
-        6: WW
         
-        7: Water
+        4: Forest
+            
+        5: Urban
+            
+        6: WR
+            
+        7: WW
         
-        8: Background - Irrelevant
+        8: Water
+        
+        9: Background - Irrelevant
             
     '''
     display_img = pred_array.copy()
@@ -123,10 +125,10 @@ display_img = transform_prediction_array(pred_array)
 
 
 # Plot the data.
-labels = ["CC-GM", "Cloud", "Cloud Shadow", "Urban", "WR", "WW", "Water", "Background"]
+labels = ["CC-GM", "Cloud", "Cloud Shadow", "Forest", "Urban", "WR", "WW", "Water", "Background"]
 # Get unique values.
 plt.figure(figsize=(12, 12))
-colours = ["yellow", "white", "black", "grey", "orange", "brown", "red", "blue", "black"]
+colours = ["yellow", "white", "black", "grey", "orange", "brown", "pink", "red", "blue", "Green", "black"]
 im = plt.imshow(display_img, cmap=matplotlib.colors.ListedColormap(colours))
 values = np.unique(display_img.ravel())
 
@@ -152,4 +154,58 @@ plt.show()
 import scipy.misc
 scipy.misc.imsave("classified_example1.tif", display_img)
 
+
+
+# Get image statistics.
+from scipy import stats
+
+def get_summary_image_statistics(img):
+    # Remove the background pixels from array.
+    stats_array = img[img != 9]
+
+    # Mean of image.
+    print("mean: ", np.mean(stats_array))
     
+    # Mode of image.
+    mode = int(stats.mode(stats_array)[0][0])
+    print("mode: ", labels[mode])
+    
+    #  CC-GM.
+    CC_GM = stats_array[stats_array == 0]
+    print("Amount of CC-GM in image: ", len(CC_GM)/len(stats_array))
+    
+    #  CC-SM.
+    CC_SM = stats_array[stats_array == 1]
+    print("Amount of CC-SM in image: ", len(CC_SM)/len(stats_array))
+    
+    #  Cloud.
+    cloud = stats_array[stats_array == 2]
+    print("Amount of cloud in image: ", len(cloud)/len(stats_array))
+    
+    #  Cloud Shadow.
+    cloudShadow = stats_array[stats_array == 3]
+    print("Amount of cloud shadow in image: ", len(cloudShadow)/len(stats_array))
+    
+    #  Forest.
+    forest = stats_array[stats_array == 4]
+    print("Amount of forest in image: ", len(forest)/len(stats_array))
+    
+    #  Urban.
+    urban = stats_array[stats_array == 5]
+    print("Amount of urban in image: ", len(urban)/len(stats_array))
+    
+    #  WR.
+    WR = stats_array[stats_array == 6]
+    print("Amount of WR in image: ", len(WR)/len(stats_array))
+    
+    #  WW.
+    WW = stats_array[stats_array == 7]
+    print("Amount of WW in image: ", len(WW)/len(stats_array))
+    
+    #  Water.
+    water = stats_array[stats_array == 8]
+    print("Amount of water in image: ", len(water)/len(stats_array))
+
+    return CC_GM
+    
+stats_array = get_summary_image_statistics(display_img)
