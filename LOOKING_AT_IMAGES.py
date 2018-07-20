@@ -12,7 +12,7 @@ os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 # Column order for the df.
 columns = ["date", "day_of_year", "r", "g", "b", "label"]
 df = pd.DataFrame(columns=columns)
-field_areas = ["EC1", "EC2", "EC3", "Cloud", "CloudShadow", "Urban", "Water"]
+field_areas = ["EC1", "EC2", "EC3", "Cloud", "CloudShadow", "Water"]
 
 # Function for getting the label.
 def get_label(field_area, date):
@@ -152,11 +152,10 @@ def get_label(field_area, date):
     elif field_area == "CloudShadow":
         label = "CloudShadow"
         
-    elif field_area == "Urban":
-        label = "Urban"
-        
     elif field_area == "Water":
         label = "Water"
+        
+
             
             
     return label
@@ -199,10 +198,14 @@ for field in field_areas:
             # Append secondary dataframe to the full dataframe.
             df = df.append(df_iter)
             
-            
+# Drop the black pixels in the dataframe.
+df = df[(df.r != 0) & (df.g != 0) & (df.b != 0)]
+
+
 # Predict with SVM.
 # Import libraries
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
@@ -215,6 +218,12 @@ y = df.iloc[:, -1]
 encoder = LabelEncoder()
 encoder.fit(y)
 y = encoder.transform(y)
+
+# Feature scale data.
+#from sklearn.preprocessing import StandardScaler
+#sc_X = StandardScaler()
+#X = sc_X.fit_transform(X)
+
 
 # Train-test split.
 X_train, X_test, y_train, y_test = train_test_split(X, y)
@@ -238,6 +247,11 @@ rand_for = RandomForestClassifier()
 rand_for = RandomForestClassifier(bootstrap=True, n_estimators=200, random_state=42)
 rand_for.fit(X_train, y_train)
 
+# SVM?
+svm = SVC(kernel="rbf")
+svm.fit(X_train, y_train)
+y_pred_svm = svm.predict(X_test)
+
 # Feature importances.
 print(rand_for.feature_importances_)
 
@@ -249,6 +263,10 @@ accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred, average="weighted")
 recall = recall_score(y_test, y_pred, average="weighted")
 
+# Get scores of svm.
+svm_acc = accuracy_score(y_test, y_pred_svm)
+svm_precision = precision_score(y_test, y_pred_svm, average="weighted")
+svm_recall = recall_score(y_test, y_pred_svm, average="weighted")
 # Confusion matrix.
 cm = confusion_matrix(y_test, y_pred)
 
@@ -258,4 +276,5 @@ y_pred_text = list(encoder.inverse_transform(y_pred))
 
 # Save the model.
 from sklearn.externals import joblib
-joblib.dump(rand_for, "random_forest.pkl")
+joblib.dump(rand_for, "random_forest_2.pkl")
+joblib.dump(svm, "svm.pkl")

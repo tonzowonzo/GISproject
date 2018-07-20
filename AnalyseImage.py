@@ -71,7 +71,7 @@ def analyse_image(image_file):
             
             # Ignore analysis if there's a mask.
             if r == 0 and g == 0 and b == 0:
-                pred_array[i][j] = 9
+                pred_array[i][j] = 7
                 counter +=1
             
                 
@@ -104,18 +104,14 @@ def transform_prediction_array(pred_array):
         2: Cloud
             
         3: Cloud Shadow
-        
-        4: Forest
             
-        5: Urban
+        4: WR
             
-        6: WR
-            
-        7: WW
+        5: WW
         
-        8: Water
+        6: Water
         
-        9: Background - Irrelevant
+        7: Background - Irrelevant
             
     '''
     display_img = pred_array.copy()
@@ -125,7 +121,7 @@ display_img = transform_prediction_array(pred_array)
 
 
 # Plot the data.
-labels = ["CC-GM", "Cloud", "Cloud Shadow", "Forest", "Urban", "WR", "WW", "Water", "Background"]
+labels = ["CC-GM", "Cloud", "WR", "WW", "Water", "Background"]
 # Get unique values.
 plt.figure(figsize=(12, 12))
 colours = ["yellow", "white", "black", "grey", "orange", "brown", "pink", "red", "blue", "Green", "black"]
