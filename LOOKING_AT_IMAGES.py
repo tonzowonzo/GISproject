@@ -12,7 +12,7 @@ os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 # Column order for the df.
 columns = ["date", "day_of_year", "r", "g", "b", "label"]
 df = pd.DataFrame(columns=columns)
-field_areas = ["EC1", "EC2", "EC3", "Cloud", "CloudShadow", "Water"]
+field_areas = ["EC1", "EC2", "EC3", "Cloud", "CloudShadow"]
 
 # Function for getting the label.
 def get_label(field_area, date):
@@ -151,9 +151,6 @@ def get_label(field_area, date):
         
     elif field_area == "CloudShadow":
         label = "CloudShadow"
-        
-    elif field_area == "Water":
-        label = "Water"
         
 
             

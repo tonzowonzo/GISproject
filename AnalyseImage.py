@@ -41,7 +41,7 @@ def analyse_image(image_file):
 
     
     # Pool image down to a smaller size.
-    def pool_image(arr, kernel_size=(4, 4, 1)):
+    def pool_image(arr, kernel_size=(12, 12, 1)):
         return block_reduce(arr, kernel_size, np.max)
         
     
@@ -70,8 +70,8 @@ def analyse_image(image_file):
                 print(counter)
             
             # Ignore analysis if there's a mask.
-            if r == 0 and g == 0 and b == 0:
-                pred_array[i][j] = 7
+            if (r == 0 and g == 0 and b == 0) or (r == 255 and g == 255 and b == 255):
+                pred_array[i][j] = 6
                 counter +=1
             
                 
@@ -86,10 +86,10 @@ def analyse_image(image_file):
             
             
                 
-    return pred_array
+    return img, pred_array
     
 #true_img = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20141014.tif")
-pred_array = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20141014.tif")
+true_img, pred_array = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20170429.tif")
 
 def transform_prediction_array(pred_array):
     '''
@@ -108,10 +108,8 @@ def transform_prediction_array(pred_array):
         4: WR
             
         5: WW
-        
-        6: Water
-        
-        7: Background - Irrelevant
+                
+        6: Background - Irrelevant
             
     '''
     display_img = pred_array.copy()
@@ -121,10 +119,10 @@ display_img = transform_prediction_array(pred_array)
 
 
 # Plot the data.
-labels = ["CC-GM", "Cloud", "WR", "WW", "Water", "Background"]
+labels = ["CC-GM", "CC-SM", "Cloud", "Cloud Shadow", "WR", "WW", "Background"]
 # Get unique values.
-plt.figure(figsize=(12, 12))
-colours = ["yellow", "white", "black", "grey", "orange", "brown", "pink", "red", "blue", "Green", "black"]
+plt.figure(figsize=(20, 20))
+colours = ["yellow", "brown", "white", "white", "pink", "green", "blue", "black"]
 im = plt.imshow(display_img, cmap=matplotlib.colors.ListedColormap(colours))
 values = np.unique(display_img.ravel())
 
@@ -157,7 +155,7 @@ from scipy import stats
 
 def get_summary_image_statistics(img):
     # Remove the background pixels from array.
-    stats_array = img[img != 9]
+    stats_array = img[img != 7]
 
     # Mean of image.
     print("mean: ", np.mean(stats_array))
@@ -182,24 +180,16 @@ def get_summary_image_statistics(img):
     cloudShadow = stats_array[stats_array == 3]
     print("Amount of cloud shadow in image: ", len(cloudShadow)/len(stats_array))
     
-    #  Forest.
-    forest = stats_array[stats_array == 4]
-    print("Amount of forest in image: ", len(forest)/len(stats_array))
-    
-    #  Urban.
-    urban = stats_array[stats_array == 5]
-    print("Amount of urban in image: ", len(urban)/len(stats_array))
-    
     #  WR.
-    WR = stats_array[stats_array == 6]
+    WR = stats_array[stats_array == 4]
     print("Amount of WR in image: ", len(WR)/len(stats_array))
     
     #  WW.
-    WW = stats_array[stats_array == 7]
+    WW = stats_array[stats_array == 5]
     print("Amount of WW in image: ", len(WW)/len(stats_array))
     
     #  Water.
-    water = stats_array[stats_array == 8]
+    water = stats_array[stats_array == 6]
     print("Amount of water in image: ", len(water)/len(stats_array))
 
     return CC_GM
