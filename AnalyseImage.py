@@ -89,7 +89,7 @@ def analyse_image(image_file):
     return img, pred_array
     
 #true_img = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20141014.tif")
-true_img, pred_array = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20170429.tif")
+true_img, pred_array = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20100731.tif")
 
 def transform_prediction_array(pred_array):
     '''
@@ -122,7 +122,7 @@ display_img = transform_prediction_array(pred_array)
 labels = ["CC-GM", "CC-SM", "Cloud", "Cloud Shadow", "WR", "WW", "Background"]
 # Get unique values.
 plt.figure(figsize=(20, 20))
-colours = ["yellow", "brown", "white", "white", "pink", "green", "blue", "black"]
+colours = ["yellow", "brown", "white", "white", "pink", "green", "black"]
 im = plt.imshow(display_img, cmap=matplotlib.colors.ListedColormap(colours))
 values = np.unique(display_img.ravel())
 
@@ -155,7 +155,7 @@ from scipy import stats
 
 def get_summary_image_statistics(img):
     # Remove the background pixels from array.
-    stats_array = img[img != 7]
+    stats_array = img[img != 6]
 
     # Mean of image.
     print("mean: ", np.mean(stats_array))
@@ -188,9 +188,6 @@ def get_summary_image_statistics(img):
     WW = stats_array[stats_array == 5]
     print("Amount of WW in image: ", len(WW)/len(stats_array))
     
-    #  Water.
-    water = stats_array[stats_array == 6]
-    print("Amount of water in image: ", len(water)/len(stats_array))
 
     return CC_GM
     
