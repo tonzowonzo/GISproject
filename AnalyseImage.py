@@ -36,12 +36,14 @@ def analyse_image(image_file):
     image_date = pd.to_datetime(image_date, format="%Y%m%d")
     
     # Get the day of the year required for the prediction.
+    month = datetime.datetime.date(image_date).month
+    year = datetime.datetime.date(image_date).year
     day_of_year = datetime.datetime.timetuple(image_date).tm_yday
     
 
     
     # Pool image down to a smaller size.
-    def pool_image(arr, kernel_size=(12, 12, 1)):
+    def pool_image(arr, kernel_size=(4, 4, 1)):
         return block_reduce(arr, kernel_size, np.max)
         
     
@@ -71,13 +73,13 @@ def analyse_image(image_file):
             
             # Ignore analysis if there's a mask.
             if (r == 0 and g == 0 and b == 0) or (r == 255 and g == 255 and b == 255):
-                pred_array[i][j] = 6
+                pred_array[i][j] = 9
                 counter +=1
             
                 
             # Predict.
             else:
-                X = np.array([day_of_year, r, g, b])
+                X = np.array([month, year, r, g, b])
                 X = X.reshape(1, -1)
                 prediction = model.predict(X)
                 # Add prediction to prediction array.
@@ -99,17 +101,21 @@ def transform_prediction_array(pred_array):
         
         0: CC-GM
             
-        1: CC-SM
+        1: CC-SB
             
-        2: Cloud
+        2: CC-SM
             
-        3: Cloud Shadow
+        3: Cloud
             
-        4: WR
+        4: Cloud Shadow
             
-        5: WW
+        5: SP
                 
-        6: Background - Irrelevant
+        6: WB
+        
+        7: WR
+            
+        8: WW
             
     '''
     display_img = pred_array.copy()
@@ -119,7 +125,7 @@ display_img = transform_prediction_array(pred_array)
 
 
 # Plot the data.
-labels = ["CC-GM", "CC-SM", "Cloud", "Cloud Shadow", "WR", "WW", "Background"]
+labels = ["CC-GM", "CC-SB", "CC-SM", "Cloud", "Cloud Shadow", "SP", "WB", "WW", "Background"]
 # Get unique values.
 plt.figure(figsize=(20, 20))
 colours = ["yellow", "brown", "white", "white", "pink", "green", "black"]
@@ -127,10 +133,11 @@ im = plt.imshow(display_img, cmap=matplotlib.colors.ListedColormap(colours))
 values = np.unique(display_img.ravel())
 
 # Create a colourmap.
+plt.figure(figsize=(20, 20))
+im = plt.imshow(display_img)
 colours = [ im.cmap(im.norm(value)) for value in values]
 # create a patch (proxy artist) for every color 
-patches = [ mpatches.Patch(color=colours[i], label="{l}".format(l=labels[i]) ) for i in range(len(values)) ]
-# put those patched as legend-handles into the legend
+patches = [ mpatches.Patch(color=colours[i], label="{l}".format(l=labels[i]) ) for i in range(len(labels)) ]# put those patched as legend-handles into the legend
 plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0. )
 plt.show()
 
@@ -155,7 +162,7 @@ from scipy import stats
 
 def get_summary_image_statistics(img):
     # Remove the background pixels from array.
-    stats_array = img[img != 6]
+    stats_array = img[img != 9]
 
     # Mean of image.
     print("mean: ", np.mean(stats_array))
@@ -168,24 +175,36 @@ def get_summary_image_statistics(img):
     CC_GM = stats_array[stats_array == 0]
     print("Amount of CC-GM in image: ", len(CC_GM)/len(stats_array))
     
+    # CC-SB
+    CC_SB = stats_array[stats_array == 1]
+    print("Amount of CC-SB in image: ", len(CC_SB)/len(stats_array))
+    
     #  CC-SM.
-    CC_SM = stats_array[stats_array == 1]
+    CC_SM = stats_array[stats_array == 2]
     print("Amount of CC-SM in image: ", len(CC_SM)/len(stats_array))
     
     #  Cloud.
-    cloud = stats_array[stats_array == 2]
+    cloud = stats_array[stats_array == 3]
     print("Amount of cloud in image: ", len(cloud)/len(stats_array))
     
     #  Cloud Shadow.
-    cloudShadow = stats_array[stats_array == 3]
+    cloudShadow = stats_array[stats_array == 4]
     print("Amount of cloud shadow in image: ", len(cloudShadow)/len(stats_array))
     
-    #  WR.
-    WR = stats_array[stats_array == 4]
+    # SP
+    SP = stats_array[stats_array == 5]
+    print("Amount of SP in image: ", len(SP)/len(stats_array))
+
+    #  WB.
+    WB = stats_array[stats_array == 6]
+    print("Amount of WB in image: ", len(WB)/len(stats_array))
+    
+    # WR.
+    WR = stats_array[stats_array == 7]
     print("Amount of WR in image: ", len(WR)/len(stats_array))
     
     #  WW.
-    WW = stats_array[stats_array == 5]
+    WW = stats_array[stats_array == 8]
     print("Amount of WW in image: ", len(WW)/len(stats_array))
     
 

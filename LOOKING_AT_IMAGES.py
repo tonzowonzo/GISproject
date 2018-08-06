@@ -10,9 +10,9 @@ import os
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 # Constants.
 # Column order for the df.
-columns = ["date", "day_of_year", "r", "g", "b", "label"]
+columns = ["date", "day_of_year", "month", "year", "r", "g", "b", "label"]
 df = pd.DataFrame(columns=columns)
-field_areas = ["EC1", "EC2", "EC3", "Cloud", "CloudShadow"]
+field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "Cloud", "CloudShadow"]
 
 # Function for getting the label.
 def get_label(field_area, date):
@@ -22,65 +22,65 @@ def get_label(field_area, date):
     '''
     # Field EC1 - Kraichgau.
     if field_area == "EC1":
-        if date < datetime.datetime(2010, 1, 1):
+        if date < datetime.datetime(2010, 12, 1):
             label = "SM"
-        elif date < datetime.datetime(2011, 1, 1):
+        elif date < datetime.datetime(2011, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2012, 1, 1):
+        elif date < datetime.datetime(2012, 4, 1):
             label = "WR"
-        elif date < datetime.datetime(2013, 1, 1):
+        elif date < datetime.datetime(2013, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2014, 1, 1):
+        elif date < datetime.datetime(2014, 12, 1):
             label = "CC-SM"
-        elif date < datetime.datetime(2015, 1, 1):
+        elif date < datetime.datetime(2015, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2016, 1, 1):
+        elif date < datetime.datetime(2016, 12, 1):
             label = "CC-GM"
-        elif date < datetime.datetime(2017, 1, 1):
+        elif date < datetime.datetime(2017, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2018, 1, 1):
+        elif date < datetime.datetime(2018, 4, 1):
             label = "WR"
     
     # Field EC2 - Kraichgau.
     elif field_area == "EC2":
-        if date < datetime.datetime(2010, 1, 1):
+        if date < datetime.datetime(2010, 4, 1):
             label = "WR"
-        elif date < datetime.datetime(2011, 1, 1):
+        elif date < datetime.datetime(2011, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2012, 1, 1):
+        elif date < datetime.datetime(2012, 12, 1):
             label = "CC-SM"
-        elif date < datetime.datetime(2013, 1, 1):
+        elif date < datetime.datetime(2013, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2014, 1, 1):
+        elif date < datetime.datetime(2014, 12, 1):
             label = "CC-SM"
-        elif date < datetime.datetime(2015, 1, 1):
+        elif date < datetime.datetime(2015, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2016, 1, 1):
+        elif date < datetime.datetime(2016, 4, 1):
             label = "WR"
-        elif date < datetime.datetime(2017, 1, 1):
+        elif date < datetime.datetime(2017, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2018, 1, 1):
+        elif date < datetime.datetime(2018, 7, 1):
             label = "WW"
     
     # Field EC3 - Kraichgau.
     elif field_area == "EC3":
-        if date < datetime.datetime(2010, 1, 1):
+        if date < datetime.datetime(2010, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2011, 1, 1):
+        elif date < datetime.datetime(2011, 12, 1):
             label = "CC-SM"
-        elif date < datetime.datetime(2012, 1, 1):
+        elif date < datetime.datetime(2012, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2013, 1, 1):
+        elif date < datetime.datetime(2013, 4, 1):
             label = "WR"
-        elif date < datetime.datetime(2014, 1, 1):
+        elif date < datetime.datetime(2014, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2015, 1, 1):
+        elif date < datetime.datetime(2015, 12, 1):
             label = "CC-SM"
-        elif date < datetime.datetime(2016, 1, 1):
+        elif date < datetime.datetime(2016, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2017, 1, 1):
+        elif date < datetime.datetime(2017, 7, 1):
             label = "WW"
-        elif date < datetime.datetime(2018, 1, 1):
+        elif date < datetime.datetime(2018, 12, 1):
             label = "CC-SM"
          
     # Field EC4 - Swaebisch Alp.
@@ -171,6 +171,8 @@ for field in field_areas:
             date = pd.to_datetime(date, format="%Y%m%d")
             # What day of the year is it out of 365/366.
             day_of_year = datetime.datetime.timetuple(date).tm_yday
+            month = datetime.datetime.date(date).month
+            year = datetime.datetime.date(date).year
             # Get the label based on csv.
             label = get_label(field, date)
             # Load the training image.
@@ -189,7 +191,7 @@ for field in field_areas:
             plt.show()
             
             # Create the secondary dataframe to append to the full dataframe.
-            data = {"date": date, "day_of_year": day_of_year, "r": r, "g": g, "b": b, "label": label}
+            data = {"date": date, "day_of_year": day_of_year, "month": month, "year": year, "r": r, "g": g, "b": b, "label": label}
             df_iter = pd.DataFrame(data=data)
             df_iter = df_iter[columns]
             # Append secondary dataframe to the full dataframe.
@@ -207,7 +209,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 # Get X and y data.
-X = df.iloc[:, 1:-1]
+X = df.iloc[:, 2:-1]
 y = df.iloc[:, -1]
 
 # Encode the y labels to onehotencoded values.
@@ -241,7 +243,7 @@ rand_for = RandomForestClassifier()
 
 
 # Fit the classifier.
-rand_for = RandomForestClassifier(bootstrap=True, n_estimators=200, random_state=42)
+rand_for = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
 rand_for.fit(X_train, y_train)
 
 # SVM?
@@ -275,3 +277,4 @@ y_pred_text = list(encoder.inverse_transform(y_pred))
 from sklearn.externals import joblib
 joblib.dump(rand_for, "random_forest_2.pkl")
 joblib.dump(svm, "svm.pkl")
+
