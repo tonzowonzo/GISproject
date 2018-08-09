@@ -19,10 +19,12 @@ from sklearn.ensemble import RandomForestClassifier
 # Set cwd.
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
-# Load the model.
-model = joblib.load("random_forest_2.pkl")
+# Load the models, first is for the initial pred, 2nd is for predictions with time.
+model_first = joblib.load("no_last_crop_forest.pkl")
+model_second = joblib.load("random_forest_2.pkl")
 
 # Analyse an image.
+# For the initial image in a set, use this function.
 def analyse_image(image_file):
     # Load in image.
     img = Image.open(image_file).convert("RGB")
@@ -81,7 +83,7 @@ def analyse_image(image_file):
             else:
                 X = np.array([month, year, r, g, b])
                 X = X.reshape(1, -1)
-                prediction = model.predict(X)
+                prediction = model_first.predict(X)
                 # Add prediction to prediction array.
                 pred_array[i][j] = prediction[0]
                 counter +=1

@@ -10,7 +10,7 @@ import os
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 # Constants.
 # Column order for the df.
-columns = ["date", "day_of_year", "month", "year", "r", "g", "b", "label"]
+columns = ["date", "day_of_year", "month", "year", "last_crop", "r", "g", "b", "label"]
 df = pd.DataFrame(columns=columns)
 field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "Cloud", "CloudShadow"]
 
@@ -24,138 +24,193 @@ def get_label(field_area, date):
     if field_area == "EC1":
         if date < datetime.datetime(2010, 12, 1):
             label = "SM"
+            last_crop = "unknown"
         elif date < datetime.datetime(2011, 7, 1):
             label = "WW"
+            last_crop = "SM"
         elif date < datetime.datetime(2012, 4, 1):
             label = "WR"
+            last_crop = "WW"
         elif date < datetime.datetime(2013, 7, 1):
             label = "WW"
+            last_crop = "WR"
         elif date < datetime.datetime(2014, 12, 1):
             label = "CC-SM"
+            last_crop = "WW"
         elif date < datetime.datetime(2015, 7, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2016, 12, 1):
             label = "CC-GM"
+            last_crop = "WW"
         elif date < datetime.datetime(2017, 7, 1):
             label = "WW"
+            last_crop = "CC-GM"
         elif date < datetime.datetime(2018, 4, 1):
             label = "WR"
+            last_crop = "WW"
     
     # Field EC2 - Kraichgau.
     elif field_area == "EC2":
         if date < datetime.datetime(2010, 4, 1):
             label = "WR"
+            last_crop = ""
         elif date < datetime.datetime(2011, 7, 1):
             label = "WW"
+            last_crop = "WR"
         elif date < datetime.datetime(2012, 12, 1):
             label = "CC-SM"
+            last_crop = "WW"
         elif date < datetime.datetime(2013, 7, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2014, 12, 1):
             label = "CC-SM"
+            last_crop = "WW"
         elif date < datetime.datetime(2015, 7, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2016, 4, 1):
             label = "WR"
+            last_crop = "WW"
         elif date < datetime.datetime(2017, 7, 1):
             label = "WW"
+            last_crop = "WR"
         elif date < datetime.datetime(2018, 7, 1):
             label = "WW"
+            last_crop = "WW"
     
     # Field EC3 - Kraichgau.
     elif field_area == "EC3":
         if date < datetime.datetime(2010, 7, 1):
             label = "WW"
+            last_crop = "unknown"
         elif date < datetime.datetime(2011, 12, 1):
             label = "CC-SM"
+            last_crop = "WW"
         elif date < datetime.datetime(2012, 7, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2013, 4, 1):
             label = "WR"
+            last_crop = "WW"
         elif date < datetime.datetime(2014, 7, 1):
             label = "WW"
+            last_crop = "WR"
         elif date < datetime.datetime(2015, 12, 1):
             label = "CC-SM"
+            last_crop = "WW"
         elif date < datetime.datetime(2016, 7, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2017, 7, 1):
             label = "WW"
+            last_crop = "WW"
         elif date < datetime.datetime(2018, 12, 1):
             label = "CC-SM"
+            last_crop = "WW"
          
     # Field EC4 - Swaebisch Alp.
     elif field_area == "EC4":
         if date < datetime.datetime(2010, 1, 1):
             label = "WR"
+            last_crop = "unknown"
         elif date < datetime.datetime(2011, 1, 1):
             label = "WW"
+            last_crop = "WR"
         elif date < datetime.datetime(2012, 1, 1):
             label = "CC-SB"
+            last_crop = "WW"
         elif date < datetime.datetime(2013, 1, 1):
             label = "WR"
+            last_crop = "CC-SB"
         elif date < datetime.datetime(2014, 1, 1):
             label = "WW"
+            last_crop = "WR"
         elif date < datetime.datetime(2015, 1, 1):
-            label = "WW"
+            label = "WW" 
+            last_crop = "WW"
         elif date < datetime.datetime(2016, 1, 1):
             label = "CC-SB"
+            last_crop = "WW"
         elif date < datetime.datetime(2017, 1, 1):
             label = "CC-SM"
+            last_crop = "CC-SB"
         elif date < datetime.datetime(2018, 1, 1):
             label = "WW"
+            last_crop = "CC-SM"
             
     # Field EC5 - Swaebisch Alp.
     elif field_area == "EC5":
         if date < datetime.datetime(2010, 1, 1):
             label = "WW"
+            last_crop = "unknown"
         elif date < datetime.datetime(2011, 1, 1):
             label = "CC-SM"
+            last_crop = "WW"
         elif date < datetime.datetime(2012, 1, 1):
             label = "SM"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2013, 1, 1):
             label = "WB"
+            last_crop = "SM"
         elif date < datetime.datetime(2014, 1, 1):
             label = "SP"
+            last_crop = "WB"
         elif date < datetime.datetime(2015, 1, 1):
             label = "CC-SM"
+            last_crop = "SP"
         elif date < datetime.datetime(2016, 1, 1):
             label = "CC-SM"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2017, 1, 1):
             label = "WB"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2018, 1, 1):
             label = "WR"
+            last_crop = "WB"
             
     # Field EC6 - Swaebisch Alp.
     elif field_area == "EC6":
         if date < datetime.datetime(2010, 1, 1):
             label = "CC-SM"
+            last_crop = "unknown"
         elif date < datetime.datetime(2011, 1, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2012, 1, 1):
             label = "WB"
+            last_crop = "WW"
         elif date < datetime.datetime(2013, 1, 1):
             label = "CC-SM"
+            last_crop = "WB"
         elif date < datetime.datetime(2014, 1, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2015, 1, 1):
             label = "WB"
+            last_crop = "WW"
         elif date < datetime.datetime(2016, 1, 1):
             label = "CC-SM"
+            last_crop = "WB"
         elif date < datetime.datetime(2017, 1, 1):
             label = "WW"
+            last_crop = "CC-SM"
         elif date < datetime.datetime(2018, 1, 1):
             label = "WB"
+            last_crop = "WW"
             
     elif field_area == "Cloud":
         label = "Cloud"
-        
+        last_crop = "unknown"
     elif field_area == "CloudShadow":
         label = "CloudShadow"
-        
+        last_crop = "unknown"
+
 
             
             
-    return label
+    return label, last_crop
             
             
     
@@ -174,7 +229,7 @@ for field in field_areas:
             month = datetime.datetime.date(date).month
             year = datetime.datetime.date(date).year
             # Get the label based on csv.
-            label = get_label(field, date)
+            label, last_crop = get_label(field, date)
             # Load the training image.
             im = cv2.imread(r'C:\Users\Tim\Desktop\GIS\GISproject\\' + field + "\\" + file, 1)
             im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
@@ -191,7 +246,8 @@ for field in field_areas:
             plt.show()
             
             # Create the secondary dataframe to append to the full dataframe.
-            data = {"date": date, "day_of_year": day_of_year, "month": month, "year": year, "r": r, "g": g, "b": b, "label": label}
+            data = {"date": date, "day_of_year": day_of_year, "month": month, 
+            "year": year, "last_crop": last_crop, "r": r, "g": g, "b": b, "label": label}
             df_iter = pd.DataFrame(data=data)
             df_iter = df_iter[columns]
             # Append secondary dataframe to the full dataframe.
@@ -217,6 +273,12 @@ y = df.iloc[:, -1]
 encoder = LabelEncoder()
 encoder.fit(y)
 y = encoder.transform(y)
+
+X_encoder = LabelEncoder()
+X_encode_values = X.last_crop
+X_encoder.fit(X_encode_values)
+X_encode_values = X_encoder.transform(X_encode_values)
+X.last_crop = X_encode_values
 
 # Feature scale data.
 #from sklearn.preprocessing import StandardScaler
@@ -245,6 +307,8 @@ rand_for = RandomForestClassifier()
 # Fit the classifier.
 rand_for = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
 rand_for.fit(X_train, y_train)
+
+
 
 # SVM?
 svm = SVC(kernel="rbf")
@@ -278,3 +342,13 @@ from sklearn.externals import joblib
 joblib.dump(rand_for, "random_forest_2.pkl")
 joblib.dump(svm, "svm.pkl")
 
+# Random forest for without last crop info (1st classification)
+rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
+X_no_last_crop = X[["month", "year", "r", "g", "b"]]
+X_no_last_crop_train, X_no_last_crop_test, y_train, y_test = train_test_split(X_no_last_crop, y)
+rand_for_no_last_crop.fit(X_no_last_crop_train, y_train)
+y_pred_no_last = rand_for_no_last_crop.predict(X_no_last_crop_test)
+accuracy_no_last = accuracy_score(y_test, y_pred_no_last)
+
+# Save this model
+joblib.dump(rand_for_no_last_crop, "no_last_crop_forest.pkl")
