@@ -10,10 +10,11 @@ import os
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 # Constants.
 # Column order for the df.
-columns = ["date", "day_of_year", "month", "year", "last_crop", "r", "g", "b", "label"]
+columns = ["date", "day_of_year", "month", "year", "last_crop", "r", "g", "b", "green_factor", "label", "binary_label"]
 df = pd.DataFrame(columns=columns)
 field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "Cloud", "CloudShadow"]
-
+summer_crops = ["SM, CC-SM", "CC-SB", "SP", "CC-GM"]
+winter_crops = ["WW", "WB", "WR"]
 # Function for getting the label.
 def get_label(field_area, date):
     '''
@@ -54,7 +55,7 @@ def get_label(field_area, date):
     elif field_area == "EC2":
         if date < datetime.datetime(2010, 4, 1):
             label = "WR"
-            last_crop = ""
+            last_crop = "unknown"
         elif date < datetime.datetime(2011, 7, 1):
             label = "WW"
             last_crop = "WR"
@@ -242,12 +243,23 @@ for field in field_areas:
             r = r.ravel()
             g = g.ravel()
             b = b.ravel()
+            green_factor = g / month
             plt.imshow(im)
             plt.show()
             
+            # Labels for early or late planting or crop.
+            if label in summer_crops:
+                summer_or_winter_crop = 'summer'
+            elif label in winter_crops:
+                summer_or_winter_crop = 'winter'
+            else:
+                summer_or_winter_crop = 'other'
+            
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month, 
-            "year": year, "last_crop": last_crop, "r": r, "g": g, "b": b, "label": label}
+            "year": year, "last_crop": last_crop, "r": r, "g": g, "b": b,
+            "green_factor": green_factor ,"label": label,
+            "binary_label" : summer_or_winter_crop}
             df_iter = pd.DataFrame(data=data)
             df_iter = df_iter[columns]
             # Append secondary dataframe to the full dataframe.
@@ -265,8 +277,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 # Get X and y data.
-X = df.iloc[:, 2:-1]
-y = df.iloc[:, -1]
+X = df.iloc[:, 2:-2]
+y = df.iloc[:, -2]
 
 # Encode the y labels to onehotencoded values.
 # Encode.
@@ -288,6 +300,7 @@ X.last_crop = X_encode_values
 
 # Train-test split.
 X_train, X_test, y_train, y_test = train_test_split(X, y)
+X_train = X_train.dropna()
 
 # Train a random forest.
 rand_for = RandomForestClassifier()
@@ -344,11 +357,35 @@ joblib.dump(svm, "svm.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
-X_no_last_crop = X[["month", "year", "r", "g", "b"]]
+X_no_last_crop = X[["month", "year", "r", "g", "b", "green_factor"]]
 X_no_last_crop_train, X_no_last_crop_test, y_train, y_test = train_test_split(X_no_last_crop, y)
 rand_for_no_last_crop.fit(X_no_last_crop_train, y_train)
 y_pred_no_last = rand_for_no_last_crop.predict(X_no_last_crop_test)
 accuracy_no_last = accuracy_score(y_test, y_pred_no_last)
+print(rand_for_no_last_crop.feature_importances_)
 
 # Save this model
 joblib.dump(rand_for_no_last_crop, "no_last_crop_forest.pkl")
+
+
+# Run a binary crop classification instead.
+y_binary = df.iloc[:, -1]
+
+# Encode the y_labels
+y_encoder = LabelEncoder()
+encoder.fit(y_binary)
+y_binary = encoder.transform(y_binary)
+
+# Train test split.
+_, _, y_train_binary, y_test_binary = train_test_split(X_no_last_crop, y_binary)
+
+# Train the model.
+binary_rand_for = RandomForestClassifier(n_estimators=250)
+binary_rand_for.fit(X_no_last_crop_train, y_train_binary)
+
+# Predict with the model.
+y_pred_binary = binary_rand_for.predict(X_no_last_crop_test)
+
+# Accuracy of the model
+accuracy_binary = accuracy_score(y_test_binary, y_pred_binary)
+print(binary_rand_for.feature_importances_)
