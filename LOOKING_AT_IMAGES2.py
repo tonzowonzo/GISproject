@@ -28,6 +28,9 @@ def get_label(field_area, date):
         if date < datetime.datetime(2010, 12, 1):
             label = "SM"
             last_crop = "unknown"
+            time_till_harvest = datetime.datetime(2010, 12, 1).days - date.days
+#            time_till_harvest = time_till_harvest.day
+            print(time_till_harvest)
         elif date < datetime.datetime(2011, 7, 1):
             label = "WW"
             last_crop = "SM"
@@ -299,7 +302,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 # Get X and y data.
-X = df.iloc[:, 2:-2]
+X = df.iloc[:, 1:-2]
 y = df.iloc[:, -2]
 
 # Encode the y labels to onehotencoded values.
@@ -347,8 +350,10 @@ rand_for.fit(X_train, y_train)
 
 # SVM?
 svm = SVC(kernel="rbf")
-svm.fit(X_train, y_train)
-y_pred_svm = svm.predict(X_test)
+svm.fit(X_train[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
+                    "blue_factor", "ir_factor"]], y_train)
+y_pred_svm = svm.predict(X_test[["day_of_year", "month", "r", "g", "b", "ir", "red_factor", "green_factor",
+                    "blue_factor", "ir_factor"]])
 
 # Feature importances.
 print(rand_for.feature_importances_)
@@ -379,7 +384,7 @@ joblib.dump(svm, "svm.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
-X_no_last_crop = X[["r", "g", "b", "ir", "red_factor", "green_factor",
+X_no_last_crop = X[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
                     "blue_factor", "ir_factor"]]
 X_no_last_crop_train, X_no_last_crop_test, y_train, y_test = train_test_split(X_no_last_crop, y)
 rand_for_no_last_crop.fit(X_no_last_crop_train, y_train)

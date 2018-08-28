@@ -109,13 +109,13 @@ def analyse_image(image_file, image_file_IR):
                 
             # Ignore analysis if there's a mask.
             if (r == 0 and g == 0 and b == 0) or (r == 255 and g == 255 and b == 255):
-                pred_array[i][j] = 9
+                pred_array[i][j] = 10
                 counter +=1
             
                 
             # Predict.
             else:
-                X = np.array([r, g, b, ir, red_factor, green_factor,
+                X = np.array([day_of_year, month, r, g, b, ir, red_factor, green_factor,
                               blue_factor, ir_factor])
                 X = X.reshape(1, -1)
                 prediction = model_first.predict(X)
@@ -238,7 +238,7 @@ display_img = transform_prediction_array(pred_array)
 
 
 # Plot the data.
-labels = ["CC-GM", "CC-SM", "Cloud", "WB", "WW", "Background"]
+labels = ["CC-GM", "CC-SB", "CC-SM", "Cloud", "WB", "WW", "Background"]
 # Get unique values.
 plt.figure(figsize=(20, 20))
 colours = ["yellow", "brown", "red", "white", "white", "green", "blue", "orange", "purple", "black"]
@@ -298,7 +298,7 @@ from scipy import stats
 
 def get_summary_image_statistics(img):
     # Remove the background pixels from array.
-    stats_array = img[img != 9]
+    stats_array = img[img != 10]
     
     #  CC-GM.
     CC_GM = stats_array[stats_array == 0]
@@ -316,32 +316,37 @@ def get_summary_image_statistics(img):
     cloud = stats_array[stats_array == 3]
     print("Amount of cloud in image: ", len(cloud)/len(stats_array))
     
-#    #  Cloud Shadow.
-#    cloudShadow = stats_array[stats_array == 4]
-#    print("Amount of cloud shadow in image: ", len(cloudShadow)/len(stats_array))
+    #  Cloud Shadow.
+    cloudShadow = stats_array[stats_array == 4]
+    print("Amount of cloud shadow in image: ", len(cloudShadow)/len(stats_array))
     
     # SP
-    SP = stats_array[stats_array == 4]
+    SP = stats_array[stats_array == 5]
     print("Amount of SP in image: ", len(SP)/len(stats_array))
 
+    # SM
+    SM = stats_array[stats_array == 6]
+    print("Amount of SM in image: ", len(SM)/len(stats_array))
+    
     #  WB.
-    WB = stats_array[stats_array == 5]
+    WB = stats_array[stats_array == 7]
     print("Amount of WB in image: ", len(WB)/len(stats_array))
     
     # WR.
-    WR = stats_array[stats_array == 6]
+    WR = stats_array[stats_array == 8]
     print("Amount of WR in image: ", len(WR)/len(stats_array))
     
     #  WW.
-    WW = stats_array[stats_array == 7]
+    WW = stats_array[stats_array == 9]
     print("Amount of WW in image: ", len(WW)/len(stats_array))
     
     # Total area.
-    max_pool_amount = 4
-    spatial_resolution = 30
-    pixel_size = max_pool_amount * spatial_resolution * spatial_resolution
-    area = len(stats_array) * pixel_size
-    print("The area of the image is: ", area, " metres squared")
+#    max_pool_amount = 4
+#    spatial_resolution = 30
+#    pixel_size = max_pool_amount * spatial_resolution * spatial_resolution
+#    area = len(stats_array) * pixel_size
+#    print("The area of the image is: ", area, " metres squared")
+#    print("Or ", area/10000, " hectares")
     return CC_GM
     
 stats_array = get_summary_image_statistics(display_img)
