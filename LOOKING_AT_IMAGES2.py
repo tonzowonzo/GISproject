@@ -28,9 +28,6 @@ def get_label(field_area, date):
         if date < datetime.datetime(2010, 12, 1):
             label = "SM"
             last_crop = "unknown"
-            time_till_harvest = datetime.datetime(2010, 12, 1).days - date.days
-#            time_till_harvest = time_till_harvest.day
-            print(time_till_harvest)
         elif date < datetime.datetime(2011, 7, 1):
             label = "WW"
             last_crop = "SM"
@@ -349,11 +346,11 @@ rand_for.fit(X_train, y_train)
 
 
 # SVM?
-svm = SVC(kernel="rbf")
-svm.fit(X_train[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
-                    "blue_factor", "ir_factor"]], y_train)
-y_pred_svm = svm.predict(X_test[["day_of_year", "month", "r", "g", "b", "ir", "red_factor", "green_factor",
-                    "blue_factor", "ir_factor"]])
+#svm = SVC(kernel="rbf")
+#svm.fit(X_train[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
+#                    "blue_factor", "ir_factor"]], y_train)
+#y_pred_svm = svm.predict(X_test[["day_of_year", "month", "r", "g", "b", "ir", "red_factor", "green_factor",
+#                    "blue_factor", "ir_factor"]])
 
 # Feature importances.
 print(rand_for.feature_importances_)
@@ -367,9 +364,9 @@ precision = precision_score(y_test, y_pred, average="weighted")
 recall = recall_score(y_test, y_pred, average="weighted")
 
 # Get scores of svm.
-svm_acc = accuracy_score(y_test, y_pred_svm)
-svm_precision = precision_score(y_test, y_pred_svm, average="weighted")
-svm_recall = recall_score(y_test, y_pred_svm, average="weighted")
+#svm_acc = accuracy_score(y_test, y_pred_svm)
+#svm_precision = precision_score(y_test, y_pred_svm, average="weighted")
+#svm_recall = recall_score(y_test, y_pred_svm, average="weighted")
 # Confusion matrix.
 cm = confusion_matrix(y_test, y_pred)
 
@@ -380,7 +377,7 @@ y_pred_text = list(encoder.inverse_transform(y_pred))
 # Save the model.
 from sklearn.externals import joblib
 joblib.dump(rand_for, "random_forest_2.pkl")
-joblib.dump(svm, "svm.pkl")
+#joblib.dump(svm, "svm.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
