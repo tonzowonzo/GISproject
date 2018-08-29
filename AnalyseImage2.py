@@ -77,6 +77,8 @@ def analyse_image(image_file, image_file_IR):
     # Create prediction array.
     pred_array = np.zeros((img_shape[0], img_shape[1]))
     
+    # Probability array.
+    proba_array = np.zeros((img_shape[0], img_shape[1], 10))
     # Loop counter.
     counter = 0
     
@@ -111,25 +113,26 @@ def analyse_image(image_file, image_file_IR):
             if (r == 0 and g == 0 and b == 0) or (r == 255 and g == 255 and b == 255):
                 pred_array[i][j] = 10
                 counter +=1
-            
+                proba_array[i][j] = 0
                 
             # Predict.
             else:
-                X = np.array([day_of_year, month, r, g, b, ir, red_factor, green_factor,
+                X = np.array([month, r, g, b, ir, red_factor, green_factor,
                               blue_factor, ir_factor])
                 X = X.reshape(1, -1)
                 prediction = model_first.predict(X)
                 test_array.append(X)
                 # Add prediction to prediction array.
+                proba_array[i][j] = model_first.predict_proba(X)
                 pred_array[i][j] = prediction[0]
                 counter +=1
             
             
                 
-    return img, pred_array, ir_array, img_array, r_array, test_array
+    return img, pred_array, ir_array, img_array, r_array, proba_array
     
 #true_img = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20141014.tif")
-true_img, pred_array, ir_array, look_at_img_array, red_array, test_array = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20170429.tif",
+true_img, pred_array, ir_array, look_at_img_array, red_array, proba_array = analyse_image(r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau/20170429.tif",
                                      r"C:/Users/Tim/Desktop/GIS/GISproject/Kraichgau_IR/20170429.tif")
 
 
@@ -287,66 +290,99 @@ plt.figure(figsize=(20, 20))
 plt.imshow(ir_array)
 plt.show()
 
+# Show the probability maps.
+def plot_probability_maps(probability_array):
+    # Define the plot params
+    def plot_image(image_array, title):
+        plt.figure(figsize=(12, 12))
+        plt.title(title)
+        plt.imshow(image_array)
+        plt.show()
+        
+    # CC-GM
+    plot_image(probability_array[:, :, 0], "CC-GM")
+    # CC-SB
+    plot_image(probability_array[:, :, 1], "CC-SB")
+    # CC-SM
+    plot_image(probability_array[:, :, 2], "CC-SM")
+    # Cloud
+    plot_image(probability_array[:, :, 3], "Cloud")
+    # Cloud Shadow
+    plot_image(probability_array[:, :, 4], "Cloud Shadow")
+    # SP
+    plot_image(probability_array[:, :, 5], "SP")
+    # SM
+    plot_image(probability_array[:, :, 6], "SM")
+    # WB
+    plot_image(probability_array[:, :, 7], "WB")
+    # WR
+    plot_image(probability_array[:, :, 8], "WR")
+    # WW
+    plot_image(probability_array[:, :, 9], "WW")
+    
+plot_probability_maps(proba_array)
+
+        
 # Save the numpy array from analysis.
 import scipy.misc
 scipy.misc.imsave("classified_example1.tif", display_img)
 
 
 
-# Get image statistics.
-from scipy import stats
-
-def get_summary_image_statistics(img):
-    # Remove the background pixels from array.
-    stats_array = img[img != 10]
-    
-    #  CC-GM.
-    CC_GM = stats_array[stats_array == 0]
-    print("Amount of CC-GM in image: ", len(CC_GM)/len(stats_array))
-    
-    # CC-SB
-    CC_SB = stats_array[stats_array == 1]
-    print("Amount of CC-SB in image: ", len(CC_SB)/len(stats_array))
-    
-    #  CC-SM.
-    CC_SM = stats_array[stats_array == 2]
-    print("Amount of CC-SM in image: ", len(CC_SM)/len(stats_array))
-    
-    #  Cloud.
-    cloud = stats_array[stats_array == 3]
-    print("Amount of cloud in image: ", len(cloud)/len(stats_array))
-    
-    #  Cloud Shadow.
-    cloudShadow = stats_array[stats_array == 4]
-    print("Amount of cloud shadow in image: ", len(cloudShadow)/len(stats_array))
-    
-    # SP
-    SP = stats_array[stats_array == 5]
-    print("Amount of SP in image: ", len(SP)/len(stats_array))
-
-    # SM
-    SM = stats_array[stats_array == 6]
-    print("Amount of SM in image: ", len(SM)/len(stats_array))
-    
-    #  WB.
-    WB = stats_array[stats_array == 7]
-    print("Amount of WB in image: ", len(WB)/len(stats_array))
-    
-    # WR.
-    WR = stats_array[stats_array == 8]
-    print("Amount of WR in image: ", len(WR)/len(stats_array))
-    
-    #  WW.
-    WW = stats_array[stats_array == 9]
-    print("Amount of WW in image: ", len(WW)/len(stats_array))
-    
-    # Total area.
-#    max_pool_amount = 4
-#    spatial_resolution = 30
-#    pixel_size = max_pool_amount * spatial_resolution * spatial_resolution
-#    area = len(stats_array) * pixel_size
-#    print("The area of the image is: ", area, " metres squared")
-#    print("Or ", area/10000, " hectares")
-    return CC_GM
-    
-stats_array = get_summary_image_statistics(display_img)
+## Get image statistics.
+#from scipy import stats
+#
+#def get_summary_image_statistics(img):
+#    # Remove the background pixels from array.
+#    stats_array = img[img != 10]
+#    
+#    #  CC-GM.
+#    CC_GM = stats_array[stats_array == 0]
+#    print("Amount of CC-GM in image: ", len(CC_GM)/len(stats_array))
+#    
+#    # CC-SB
+#    CC_SB = stats_array[stats_array == 1]
+#    print("Amount of CC-SB in image: ", len(CC_SB)/len(stats_array))
+#    
+#    #  CC-SM.
+#    CC_SM = stats_array[stats_array == 2]
+#    print("Amount of CC-SM in image: ", len(CC_SM)/len(stats_array))
+#    
+#    #  Cloud.
+#    cloud = stats_array[stats_array == 3]
+#    print("Amount of cloud in image: ", len(cloud)/len(stats_array))
+#    
+#    #  Cloud Shadow.
+#    cloudShadow = stats_array[stats_array == 4]
+#    print("Amount of cloud shadow in image: ", len(cloudShadow)/len(stats_array))
+#    
+#    # SP
+#    SP = stats_array[stats_array == 5]
+#    print("Amount of SP in image: ", len(SP)/len(stats_array))
+#
+#    # SM
+#    SM = stats_array[stats_array == 6]
+#    print("Amount of SM in image: ", len(SM)/len(stats_array))
+#    
+#    #  WB.
+#    WB = stats_array[stats_array == 7]
+#    print("Amount of WB in image: ", len(WB)/len(stats_array))
+#    
+#    # WR.
+#    WR = stats_array[stats_array == 8]
+#    print("Amount of WR in image: ", len(WR)/len(stats_array))
+#    
+#    #  WW.
+#    WW = stats_array[stats_array == 9]
+#    print("Amount of WW in image: ", len(WW)/len(stats_array))
+#    
+#    # Total area.
+##    max_pool_amount = 4
+##    spatial_resolution = 30
+##    pixel_size = max_pool_amount * spatial_resolution * spatial_resolution
+##    area = len(stats_array) * pixel_size
+##    print("The area of the image is: ", area, " metres squared")
+##    print("Or ", area/10000, " hectares")
+#    return CC_GM
+#    
+#stats_array = get_summary_image_statistics(display_img)
