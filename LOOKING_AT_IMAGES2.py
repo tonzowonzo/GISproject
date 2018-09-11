@@ -5,6 +5,10 @@ import cv2
 import pandas as pd
 import datetime
 import os
+import random
+
+# Import the get_label function
+from get_label import get_label
 
 # Set working directory.
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
@@ -13,211 +17,12 @@ os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 columns = ["date", "day_of_year", "month", "year", "last_crop", "r", "g",
            "b", "ir", "red_factor", "green_factor", "blue_factor",
            "ir_factor", "label", "binary_label"]
-df = pd.DataFrame(columns=columns)
+train_df = pd.DataFrame(columns=columns)
+test_df = pd.DataFrame(columns=columns)
+
 field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "Cloud", "CloudShadow"]
 summer_crops = ["SM, CC-SM", "CC-SB", "SP", "CC-GM"]
 winter_crops = ["WW", "WB", "WR"]
-# Function for getting the label.
-def get_label(field_area, date):
-    '''
-    Returns the label of an image based on the csv that shows which label is in
-    which area by time.
-    '''
-    # Field EC1 - Kraichgau.
-    if field_area == "EC1":
-        if date < datetime.datetime(2010, 12, 1):
-            label = "SM"
-            last_crop = "unknown"
-        elif date < datetime.datetime(2011, 7, 1):
-            label = "WW"
-            last_crop = "SM"
-        elif date < datetime.datetime(2012, 4, 1):
-            label = "WR"
-            last_crop = "WW"
-        elif date < datetime.datetime(2013, 7, 1):
-            label = "WW"
-            last_crop = "WR"
-        elif date < datetime.datetime(2014, 12, 1):
-            label = "CC-SM"
-            last_crop = "WW"
-        elif date < datetime.datetime(2015, 7, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2016, 12, 1):
-            label = "CC-GM"
-            last_crop = "WW"
-        elif date < datetime.datetime(2017, 7, 1):
-            label = "WW"
-            last_crop = "CC-GM"
-        elif date < datetime.datetime(2018, 4, 1):
-            label = "WR"
-            last_crop = "WW"
-    
-    # Field EC2 - Kraichgau.
-    elif field_area == "EC2":
-        if date < datetime.datetime(2010, 4, 1):
-            label = "WR"
-            last_crop = "unknown"
-        elif date < datetime.datetime(2011, 7, 1):
-            label = "WW"
-            last_crop = "WR"
-        elif date < datetime.datetime(2012, 12, 1):
-            label = "CC-SM"
-            last_crop = "WW"
-        elif date < datetime.datetime(2013, 7, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2014, 12, 1):
-            label = "CC-SM"
-            last_crop = "WW"
-        elif date < datetime.datetime(2015, 7, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2016, 4, 1):
-            label = "WR"
-            last_crop = "WW"
-        elif date < datetime.datetime(2017, 7, 1):
-            label = "WW"
-            last_crop = "WR"
-        elif date < datetime.datetime(2018, 7, 1):
-            label = "WW"
-            last_crop = "WW"
-    
-    # Field EC3 - Kraichgau.
-    elif field_area == "EC3":
-        if date < datetime.datetime(2010, 7, 1):
-            label = "WW"
-            last_crop = "unknown"
-        elif date < datetime.datetime(2011, 12, 1):
-            label = "CC-SM"
-            last_crop = "WW"
-        elif date < datetime.datetime(2012, 7, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2013, 4, 1):
-            label = "WR"
-            last_crop = "WW"
-        elif date < datetime.datetime(2014, 7, 1):
-            label = "WW"
-            last_crop = "WR"
-        elif date < datetime.datetime(2015, 12, 1):
-            label = "CC-SM"
-            last_crop = "WW"
-        elif date < datetime.datetime(2016, 7, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2017, 7, 1):
-            label = "WW"
-            last_crop = "WW"
-        elif date < datetime.datetime(2018, 12, 1):
-            label = "CC-SM"
-            last_crop = "WW"
-         
-    # Field EC4 - Swaebisch Alp.
-    elif field_area == "EC4":
-        if date < datetime.datetime(2010, 1, 1):
-            label = "WR"
-            last_crop = "unknown"
-        elif date < datetime.datetime(2011, 1, 1):
-            label = "WW"
-            last_crop = "WR"
-        elif date < datetime.datetime(2012, 1, 1):
-            label = "CC-SB"
-            last_crop = "WW"
-        elif date < datetime.datetime(2013, 1, 1):
-            label = "WR"
-            last_crop = "CC-SB"
-        elif date < datetime.datetime(2014, 1, 1):
-            label = "WW"
-            last_crop = "WR"
-        elif date < datetime.datetime(2015, 1, 1):
-            label = "WW" 
-            last_crop = "WW"
-        elif date < datetime.datetime(2016, 1, 1):
-            label = "CC-SB"
-            last_crop = "WW"
-        elif date < datetime.datetime(2017, 1, 1):
-            label = "CC-SM"
-            last_crop = "CC-SB"
-        elif date < datetime.datetime(2018, 1, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-            
-    # Field EC5 - Swaebisch Alp.
-    elif field_area == "EC5":
-        if date < datetime.datetime(2010, 1, 1):
-            label = "WW"
-            last_crop = "unknown"
-        elif date < datetime.datetime(2011, 1, 1):
-            label = "CC-SM"
-            last_crop = "WW"
-        elif date < datetime.datetime(2012, 1, 1):
-            label = "SM"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2013, 1, 1):
-            label = "WB"
-            last_crop = "SM"
-        elif date < datetime.datetime(2014, 1, 1):
-            label = "SP"
-            last_crop = "WB"
-        elif date < datetime.datetime(2015, 1, 1):
-            label = "CC-SM"
-            last_crop = "SP"
-        elif date < datetime.datetime(2016, 1, 1):
-            label = "CC-SM"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2017, 1, 1):
-            label = "WB"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2018, 1, 1):
-            label = "WR"
-            last_crop = "WB"
-            
-    # Field EC6 - Swaebisch Alp.
-    elif field_area == "EC6":
-        if date < datetime.datetime(2010, 1, 1):
-            label = "CC-SM"
-            last_crop = "unknown"
-        elif date < datetime.datetime(2011, 1, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2012, 1, 1):
-            label = "WB"
-            last_crop = "WW"
-        elif date < datetime.datetime(2013, 1, 1):
-            label = "CC-SM"
-            last_crop = "WB"
-        elif date < datetime.datetime(2014, 1, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2015, 1, 1):
-            label = "WB"
-            last_crop = "WW"
-        elif date < datetime.datetime(2016, 1, 1):
-            label = "CC-SM"
-            last_crop = "WB"
-        elif date < datetime.datetime(2017, 1, 1):
-            label = "WW"
-            last_crop = "CC-SM"
-        elif date < datetime.datetime(2018, 1, 1):
-            label = "WB"
-            last_crop = "WW"
-            
-    elif field_area == "Cloud":
-        label = "Cloud"
-        last_crop = "unknown"
-    elif field_area == "CloudShadow":
-        label = "CloudShadow"
-        last_crop = "unknown"
-
-
-            
-            
-    return label, last_crop
-            
-            
-    
-    
     
 # Loop for getting all files into the dataframe, labelled.
 for field in field_areas:
@@ -285,34 +90,55 @@ for field in field_areas:
             df_iter = pd.DataFrame(data=data)
             df_iter = df_iter[columns]
             # Append secondary dataframe to the full dataframe.
-            df = df.append(df_iter)
-            
+            # Choose which df to add to.
+            random_number = random.randint(1, 100)
+            if random_number <= 25:
+                test_df = test_df.append(df_iter)
+            else:
+                train_df = train_df.append(df_iter)
+                        
 # Drop the black pixels in the dataframe.
-df = df[(df.r != 0) & (df.g != 0) & (df.b != 0)]
+train_df = train_df[(train_df.r != 0) & (train_df.g != 0) & (train_df.b != 0)]
+test_df = test_df[(test_df.r != 0) & (test_df.g != 0) & (test_df.b != 0)]
+# Drop values whose date is between September and March.
+train_df = train_df[train_df.label != "irrelevant"]
+test_df = test_df[test_df.label != "irrelevant"]
 
-
-# Predict with SVM.
 # Import libraries
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
-# Get X and y data.
-X = df.iloc[:, 1:-2]
-y = df.iloc[:, -2]
+
+# Get X and y training data
+X_train = train_df.iloc[:, 1:-2]
+y_train = train_df.iloc[:, -2]
 
 # Encode the y labels to onehotencoded values.
-# Encode.
+# Encode train labels.
 encoder = LabelEncoder()
-encoder.fit(y)
-y = encoder.transform(y)
+encoder.fit(y_train)
+y_train = encoder.transform(y_train)
 
 X_encoder = LabelEncoder()
-X_encode_values = X.last_crop
+X_encode_values = X_train.last_crop
 X_encoder.fit(X_encode_values)
 X_encode_values = X_encoder.transform(X_encode_values)
-X.last_crop = X_encode_values
+X_train.last_crop = X_encode_values
+
+# Encode test labels, prepare test set.
+# Get X and y training data
+X_test = test_df.iloc[:, 1:-2]
+y_test = test_df.iloc[:, -2]
+y_test = encoder.transform(y_test)
+
+# Encode the y labels to onehotencoded values.
+X_test_encoder = LabelEncoder()
+X_test_encode_values = X_test.last_crop
+X_test_encoder.fit(X_test_encode_values)
+X_test_encode_values = X_test_encoder.transform(X_test_encode_values)
+X_test.last_crop = X_test_encode_values
 
 # Feature scale data.
 #from sklearn.preprocessing import StandardScaler
@@ -320,9 +146,9 @@ X.last_crop = X_encode_values
 #X = sc_X.fit_transform(X)
 
 
-# Train-test split.
-X_train, X_test, y_train, y_test = train_test_split(X, y)
+# Drop the NaN values.
 X_train = X_train.dropna()
+X_test.dropna()
 
 # Train a random forest.
 rand_for = RandomForestClassifier()
@@ -343,15 +169,6 @@ rand_for = RandomForestClassifier()
 rand_for = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
 rand_for.fit(X_train, y_train)
 
-
-
-# SVM?
-#svm = SVC(kernel="rbf")
-#svm.fit(X_train[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
-#                    "blue_factor", "ir_factor"]], y_train)
-#y_pred_svm = svm.predict(X_test[["day_of_year", "month", "r", "g", "b", "ir", "red_factor", "green_factor",
-#                    "blue_factor", "ir_factor"]])
-
 # Feature importances.
 print(rand_for.feature_importances_)
 
@@ -363,16 +180,12 @@ accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred, average="weighted")
 recall = recall_score(y_test, y_pred, average="weighted")
 
-# Get scores of svm.
-#svm_acc = accuracy_score(y_test, y_pred_svm)
-#svm_precision = precision_score(y_test, y_pred_svm, average="weighted")
-#svm_recall = recall_score(y_test, y_pred_svm, average="weighted")
 # Confusion matrix.
 cm = confusion_matrix(y_test, y_pred)
 
 # Turn encoded values back to non-encoded for comparison
-y_test_text = list(encoder.inverse_transform(y_test))
-y_pred_text = list(encoder.inverse_transform(y_pred))
+#y_test_text = list(encoder.inverse_transform(y_test))
+#y_pred_text = list(encoder.inverse_transform(y_pred))
 
 # Save the model.
 from sklearn.externals import joblib
@@ -381,36 +194,39 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
-X_no_last_crop = X[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
+X_train_no_last_crop = X_train[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
                     "blue_factor", "ir_factor"]]
-X_no_last_crop_train, X_no_last_crop_test, y_train, y_test = train_test_split(X_no_last_crop, y)
-rand_for_no_last_crop.fit(X_no_last_crop_train, y_train)
-y_pred_no_last = rand_for_no_last_crop.predict(X_no_last_crop_test)
+X_test_no_last_crop = X_test[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
+                    "blue_factor", "ir_factor"]]
+rand_for_no_last_crop.fit(X_train_no_last_crop, y_train)
+y_pred_no_last = rand_for_no_last_crop.predict(X_test_no_last_crop)
 accuracy_no_last = accuracy_score(y_test, y_pred_no_last)
 print(rand_for_no_last_crop.feature_importances_)
 
+# Confusion matrix for no_last
+cm_no_last = confusion_matrix(y_test, y_pred_no_last)
 # Save this model
 joblib.dump(rand_for_no_last_crop, "no_last_crop_forest.pkl")
 
 
-# Run a binary crop classification instead.
-y_binary = df.iloc[:, -1]
-
-# Encode the y_labels
-y_encoder = LabelEncoder()
-encoder.fit(y_binary)
-y_binary = encoder.transform(y_binary)
-
-# Train test split.
-_, _, y_train_binary, y_test_binary = train_test_split(X_no_last_crop, y_binary)
-
-# Train the model.
-binary_rand_for = RandomForestClassifier(n_estimators=250)
-binary_rand_for.fit(X_no_last_crop_train, y_train_binary)
-
-# Predict with the model.
-y_pred_binary = binary_rand_for.predict(X_no_last_crop_test)
-
-# Accuracy of the model
-accuracy_binary = accuracy_score(y_test_binary, y_pred_binary)
-print(binary_rand_for.feature_importances_)
+## Run a binary crop classification instead.
+#y_binary = df.iloc[:, -1]
+#
+## Encode the y_labels
+#y_encoder = LabelEncoder()
+#encoder.fit(y_binary)
+#y_binary = encoder.transform(y_binary)
+#
+## Train test split.
+#_, _, y_train_binary, y_test_binary = train_test_split(X_no_last_crop, y_binary)
+#
+## Train the model.
+#binary_rand_for = RandomForestClassifier(n_estimators=250)
+#binary_rand_for.fit(X_no_last_crop_train, y_train_binary)
+#
+## Predict with the model.
+#y_pred_binary = binary_rand_for.predict(X_no_last_crop_test)
+#
+## Accuracy of the model
+#accuracy_binary = accuracy_score(y_test_binary, y_pred_binary)
+#print(binary_rand_for.feature_importances_)
