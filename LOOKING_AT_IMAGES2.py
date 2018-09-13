@@ -92,7 +92,7 @@ for field in field_areas:
             # Append secondary dataframe to the full dataframe.
             # Choose which df to add to.
             random_number = random.randint(1, 100)
-            if random_number <= 25:
+            if random_number <= 10:
                 test_df = test_df.append(df_iter)
             else:
                 train_df = train_df.append(df_iter)
@@ -100,13 +100,48 @@ for field in field_areas:
 # Drop the black pixels in the dataframe.
 train_df = train_df[(train_df.r != 0) & (train_df.g != 0) & (train_df.b != 0)]
 test_df = test_df[(test_df.r != 0) & (test_df.g != 0) & (test_df.b != 0)]
+
 # Drop values whose date is between September and March.
 train_df = train_df[train_df.label != "irrelevant"]
 test_df = test_df[test_df.label != "irrelevant"]
 
+## Downsample WW, SM and Cloud.
+#from sklearn.utils import resample
+#train_df_cloud = train_df[train_df.label == "Cloud"]
+#train_df_SM = train_df[train_df.label == "SM"]
+#train_df_WW = train_df[train_df.label == "WW"]
+#
+## Downsample Cloud.
+#train_df_cloud = resample(train_df_cloud,
+#                          replace=False,
+#                          n_samples=3000,
+#                          random_state=42)
+## Downsample SM.
+#train_df_SM = resample(train_df_SM,
+#                          replace=False,
+#                          n_samples=3000,
+#                          random_state=42)
+## Downsample WW.
+#train_df_WW = resample(train_df_WW,
+#                          replace=False,
+#                          n_samples=3000,
+#                          random_state=42)
+#
+## Remove the above from train df.
+#train_df = train_df[train_df.label != "Cloud"]
+#train_df = train_df[train_df.label != "SM"]
+#train_df = train_df[train_df.label != "WW"]
+#
+## Append the resampled dfs to train df.
+#train_df = pd.concat([train_df, train_df_cloud])
+#train_df = pd.concat([train_df, train_df_SM])
+#train_df = pd.concat([train_df, train_df_WW])
+
+
 # Import libraries
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
@@ -166,7 +201,8 @@ rand_for = RandomForestClassifier()
 
 
 # Fit the classifier.
-rand_for = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
+rand_for = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42,
+                                  criterion="entropy")
 rand_for.fit(X_train, y_train)
 
 # Feature importances.
@@ -194,9 +230,9 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
-X_train_no_last_crop = X_train[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
+X_train_no_last_crop = X_train[["month", "year", "r", "g", "b", "ir", "red_factor", "green_factor",
                     "blue_factor", "ir_factor"]]
-X_test_no_last_crop = X_test[["month", "r", "g", "b", "ir", "red_factor", "green_factor",
+X_test_no_last_crop = X_test[["month", "year", "r", "g", "b", "ir", "red_factor", "green_factor",
                     "blue_factor", "ir_factor"]]
 rand_for_no_last_crop.fit(X_train_no_last_crop, y_train)
 y_pred_no_last = rand_for_no_last_crop.predict(X_test_no_last_crop)
@@ -207,6 +243,24 @@ print(rand_for_no_last_crop.feature_importances_)
 cm_no_last = confusion_matrix(y_test, y_pred_no_last)
 # Save this model
 joblib.dump(rand_for_no_last_crop, "no_last_crop_forest.pkl")
+
+# Train and test a naive bayes classifier.
+NB_classifier = GaussianNB()
+NB_classifier.fit(X_train_no_last_crop, y_train)
+y_pred_NB = NB_classifier.predict(X_test_no_last_crop)
+NB_accuracy = accuracy_score(y_test, y_pred_NB)
+cm_NB = confusion_matrix(y_test, y_pred_NB)
+joblib.dump(NB_classifier, "NB_classifier.pkl")
+
+# Try XGBoost instead
+from xgboost import XGBClassifier
+XGB_clf = XGBClassifier(objective="multi:softmax")
+XGB_clf.fit(X_train_no_last_crop, y_train)
+y_pred_XGB = XGB_clf.predict(X_test_no_last_crop)
+XGB_accuracy = accuracy_score(y_test, y_pred_XGB)
+XGB_precision = precision_score(y_test, y_pred_XGB, average="weighted")
+XGB_recall = recall_score(y_test, y_pred_XGB, average="weighted")
+cm_XGB = confusion_matrix(y_test, y_pred_XGB)
 
 
 ## Run a binary crop classification instead.
