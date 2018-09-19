@@ -11,6 +11,10 @@ def get_label(field_area, date):
     if date.month >= 9 or date.month <= 3:
         label = "irrelevant"
         last_crop = "unknown"
+    elif date.year >= 2018:
+        label = "irrelevant"
+        last_crop = "unknown"
+        
     # Field EC1 - Kraichgau.
     elif field_area == "EC1":
         if date < datetime.datetime(2010, 12, 1):
@@ -221,33 +225,33 @@ def get_label(field_area, date):
             label = "irrelevant"
             last_crop = "WW"
 
-    # Field area 1-4 - Kraichgau.
-    # CHANGE THIS ONE LATER, IT'S WRONG.
-    elif field_area == "1_4":
-        if date < datetime.datetime(2010, 7, 1):
-            label = "WW"
-            last_crop = "WW"
-        elif date < datetime.datetime(2011, 6, 1):
-            label = "WR"
-            last_crop = "SB"
-        elif date < datetime.datetime(2012, 12, 1):
-            label = "SB"
-            last_crop= "WR"
-        elif date < datetime.datetime(2013, 6, 1):
-            label = "WR"
-            last_crop = "SB"
-        elif date < datetime.datetime(2014, 7, 1):
-            label = "WW"
-            last_crop = "WR"
-        elif date < datetime.datetime(2015, 12, 1):
-            label = "SB"
-            last_crop = "WW"
-        elif date < datetime.datetime(2016, 6, 1):
-            label = "WR"
-            last_crop = "SB"
-        elif date < datetime.datetime(2017, 7, 1):
-            label = "WW"
-            last_crop = "SB"
+#    # Field area 1-4 - Kraichgau.
+#    # CHANGE THIS ONE LATER, IT'S WRONG.
+#    elif field_area == "1_4":
+#        if date < datetime.datetime(2010, 7, 1):
+#            label = "WW"
+#            last_crop = "WW"
+#        elif date < datetime.datetime(2011, 6, 1):
+#            label = "WR"
+#            last_crop = "SB"
+#        elif date < datetime.datetime(2012, 12, 1):
+#            label = "SB"
+#            last_crop= "WR"
+#        elif date < datetime.datetime(2013, 6, 1):
+#            label = "WR"
+#            last_crop = "SB"
+#        elif date < datetime.datetime(2014, 7, 1):
+#            label = "WW"
+#            last_crop = "WR"
+#        elif date < datetime.datetime(2015, 12, 1):
+#            label = "SB"
+#            last_crop = "WW"
+#        elif date < datetime.datetime(2016, 6, 1):
+#            label = "WR"
+#            last_crop = "SB"
+#        elif date < datetime.datetime(2017, 7, 1):
+#            label = "WW"
+#            last_crop = "SB"
             
     # Field area 2 - Kraichgau.
     elif field_area == "2":
@@ -272,7 +276,266 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2017, 7, 1):
             label = "WW"
             last_crop = "SB"
-    
+            
+    # Field area 3 - Kraichgau.
+    elif field_area == "3":
+        if date < datetime.datetime(2010, 6, 1):
+            label = "WR"
+            last_crop = "SB"
+        elif date < datetime.datetime(2011, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2012, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2013, 6, 1):
+            label = "WR"
+            last_crop = "SB"
+        elif date < datetime.datetime(2014, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "SM"
+            last_crop = "SB"
+
+    # Field area 4 - Kraichgau.
+    elif field_area == "4":
+        if date < datetime.datetime(2010, 7, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2011, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2012, 6, 1):
+            label = "WR"
+            last_crop = "WW"
+        elif date < datetime.datetime(2013, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2014, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "SB"
+        elif date < datetime.datetime(2016, 7, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+            
+    # Field area 5 - Kraichgau.
+    elif field_area == "5":
+        if date < datetime.datetime(2010, 7, 1):
+            label = "WW"
+            last_crop = "WW"
+        elif date < datetime.datetime(2011, 12, 1):
+            label = "SM"
+            last_crop = "WW"
+        elif date < datetime.datetime(2012, 12, 1):
+            label = "irrelevant"
+            last_crop = "SM"
+        elif date < datetime.datetime(2013, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2014, 12, 1):
+            label = "SM"
+            last_crop = "WW"
+        elif date < datetime.datetime(2015, 7, 1):
+            label = "WW"
+            last_crop = "SM"
+        elif date < datetime.datetime(2016, 7, 1):
+            label = "WB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "SM"
+            last_crop = "WB"
+            
+    # Field area 6 - Kraichgau.
+    elif field_area == "6":
+        if date < datetime.datetime(2010, 6, 1):
+            label = "WR"
+            last_crop = "WW"
+        elif date < datetime.datetime(2011, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2012, 6, 1):
+            label = "WR"
+            last_crop = "WW"
+        elif date < datetime.datetime(2013, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2014, 12, 1):
+            label = "irrelevant"
+            last_crop = "WW"
+        elif date < datetime.datetime(2015, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2016, 6, 1):
+            label = "WR"
+            last_crop = "WW"
+        elif date < datetime.datetime(2017, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+            
+    # Field area 8 - Kraichgau.
+    elif field_area == "8":
+        if date < datetime.datetime(2010, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2011, 6, 1):
+            label = "WR"
+            last_crop = "WW"
+        elif date < datetime.datetime(2012, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2013, 7, 1):
+            label = "irrelevant"
+            last_crop = "WW"
+        elif date < datetime.datetime(2014, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2015, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2016, 6, 1):
+            label = "irrelevant"
+            last_crop = "WW"
+            
+    # Field area 9 - Kraichgau.
+    elif field_area == "9":
+        if date < datetime.datetime(2010, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2011, 12, 1):
+            label = "GM"
+            last_crop = "WW"
+        elif date < datetime.datetime(2012, 7, 1):
+            label = "WW"
+            last_crop = "GM"
+        elif date < datetime.datetime(2013, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2014, 6, 1):
+            label = "WR"
+            last_crop = "SB"
+        elif date < datetime.datetime(2015, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "GM"
+            last_crop = "WW"
+            
+    # Field area 11 - Kraichgau.
+    elif field_area == "11":
+        if date < datetime.datetime(2010, 7, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2011, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2012, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2013, 12, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2014, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+            
+    # Field area 13 - Kraichgau.
+    elif field_area == "13":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2011, 7, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2012, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2013, 6, 1):
+            label = "WR"
+            last_crop = "WW"
+        elif date < datetime.datetime(2014, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "SB"
+            last_crop = "SB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+            
+    # Field area 15 - Kraichgau.
+    elif field_area == "15":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2011, 6, 1):
+            label = "WR"
+            last_crop = "SB"
+        elif date < datetime.datetime(2012, 7, 1):
+            label = "irrelevant"
+            last_crop = "WR"
+        elif date < datetime.datetime(2013, 12, 1):
+            label = "SB"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2014, 6, 1):
+            label = "WR"
+            last_crop = "SB"
+        elif date < datetime.datetime(2015, 7, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+            
+    # Field area 17 - Kraichgau.
+    elif field_area == "17":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SB"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2011, 12, 1):
+            label = "GM"
+            last_crop = "SB"
+        elif date < datetime.datetime(2012, 7, 1):
+            label = "WW"
+            last_crop = "GM"
+        elif date < datetime.datetime(2013, 12, 1):
+            label = "irrelevant"
+            last_crop = "WW"
+        elif date < datetime.datetime(2014, 7, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+
+            
     elif field_area == "Cloud":
         label = "Cloud"
         last_crop = "unknown"
