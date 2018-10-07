@@ -17,7 +17,8 @@ from get_label import get_label
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
 # Constants.
-field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6"]
+field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "2", "3", "4", "5",
+               "6", "8", "9", "11", "13", "15", "17"]
 summer_crops = ["SM, CC-SM", "CC-SB", "SP", "CC-GM"]
 winter_crops = ["WW", "WB", "WR"]
 
@@ -62,7 +63,7 @@ columns = ["date", "day_of_year", "month", "year", "last_crop", "ca", "b", "g",
            "label", "binary_label"]
 train_df = pd.DataFrame(columns=columns)
 test_df = pd.DataFrame(columns=columns)
-test_field_areas = ["EC3"]
+test_field_areas = ["1_1", "2", "3", "4"]
 
 # Loop for getting all files into the dataframe, labelled.
 for field in field_areas:
@@ -197,9 +198,6 @@ for field in field_areas:
             plt.imshow(b, cmap="binary")
             plt.clim(30, 150)
             plt.show()
-            plt.imshow(tirs2, cmap="binary")
-            plt.clim(30, 150)
-            plt.show()
             
             # Turn the 2D image data into a 1D series.
             b = b.ravel()
@@ -216,10 +214,10 @@ for field in field_areas:
             
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
-                    "year": year, "last_crop": last_crop, "ca": ca, "b": b, 
-                    "g": g, "r": r, "nir": nir, "swir1": swir1,  
-                    "swir2": swir2, "pan": pan, "cir": cir, "tirs1": tirs1, 
-                    "tirs2": tirs2, "ndvi": ndvi, "label": label, 
+                    "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
+                    "g": g, "r": r, "nir": nir, "cir": 0, "swir1": swir1,  
+                    "swir2": swir2, "pan": pan, "tirs1": tirs1, "tirs2": 0,
+                    "ndvi": ndvi, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
@@ -261,13 +259,7 @@ for field in field_areas:
             swir1 = cv2.imread(path +  "\\5\\" + file, 0)
             tirs1 = cv2.imread(path +  "\\6\\" + file, 0)
             swir2 = cv2.imread(path +  "\\7\\" + file, 0)
-            pan = cv2.imread(path +  "\\8\\" + file, 0)
-                            
-            # Reshape the panchromatic image to match others.
-            img_shape = b.shape[:2]
-            pan = cv2.resize(pan, dsize=(img_shape[1], img_shape[0]), 
-                             interpolation=cv2.INTER_NEAREST)
-            
+                   
             # Labels for early or late planting or crop.
             if label in summer_crops:
                 summer_or_winter_crop = 'summer'
@@ -280,9 +272,6 @@ for field in field_areas:
             plt.imshow(b, cmap="binary")
             plt.clim(30, 150)
             plt.show()
-            plt.imshow(tirs2, cmap="binary")
-            plt.clim(30, 150)
-            plt.show()
             
             # Turn the 2D image data into a 1D series.
             b = b.ravel()
@@ -291,7 +280,6 @@ for field in field_areas:
             nir = nir.ravel()
             swir1 = swir1.ravel()
             swir2 = swir2.ravel()
-            pan = pan.ravel()
             tirs1 = tirs1.ravel()
             
             # Calculate NDVI.
@@ -299,10 +287,10 @@ for field in field_areas:
             
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
-                    "year": year, "last_crop": last_crop, "ca": ca, "b": b, 
+                    "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
-                    "swir2": swir2, "pan": pan, "cir": cir, "tirs1": tirs1, 
-                    "tirs2": tirs2, "ndvi": ndvi, "label": label, 
+                    "swir2": swir2, "pan": 0, "cir": 0, "tirs1": tirs1, 
+                    "tirs2": 0, "ndvi": ndvi, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
@@ -334,6 +322,14 @@ test_df = test_df[test_df.label != "irrelevant"]
 # Sort the dataframe by date.
 train_df = train_df.sort_values(by="date")
 test_df = test_df.sort_values(by="date")
+
+# Replace infinity values.
+train_df = train_df.replace([np.inf, -np.inf], np.nan)
+test_df = test_df.replace([np.inf, -np.inf], np.nan)
+
+# Drop the NaN values.
+train_df = train_df.dropna()
+test_df = test_df.dropna()
 
 # Encode labels.
 from sklearn.preprocessing import LabelEncoder
@@ -372,3 +368,79 @@ X_test.last_crop = X_test_encode_values
 ###############################################################################
 # Create classifier.
 ###############################################################################
+# Train a random forest.
+from sklearn.ensemble import RandomForestClassifier
+rand_for = RandomForestClassifier()
+
+# Fit the classifier.
+rand_for = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42,
+                                  criterion="entropy")
+rand_for.fit(X_train, y_train)
+
+# Feature importances.
+print(rand_for.feature_importances_)
+
+# Predict values
+y_pred = rand_for.predict(X_test)
+
+# Get scores of the classifier.
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred, average="weighted")
+recall = recall_score(y_test, y_pred, average="weighted")
+
+# Confusion matrix.
+cm = confusion_matrix(y_test, y_pred)
+
+# Turn encoded values back to non-encoded for comparison
+#y_test_text = list(encoder.inverse_transform(y_test))
+#y_pred_text = list(encoder.inverse_transform(y_pred))
+
+# Save the model.
+from sklearn.externals import joblib
+joblib.dump(rand_for, "random_forest_2.pkl")
+#joblib.dump(svm, "svm.pkl")
+
+# Random forest for without last crop info (1st classification)
+rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
+X_train_no_last_crop = X_train[["month", "b", "g",
+           "r", "nir", "swir1", "swir2", "tirs1", "ndvi"]]
+X_test_no_last_crop = X_test[["month", "b", "g",
+           "r", "nir", "swir1", "swir2", "tirs1", "ndvi"]]
+rand_for_no_last_crop.fit(X_train_no_last_crop, y_train)
+y_pred_no_last = rand_for_no_last_crop.predict(X_test_no_last_crop)
+accuracy_no_last = accuracy_score(y_test, y_pred_no_last)
+print(rand_for_no_last_crop.feature_importances_)
+
+# Confusion matrix for no_last
+cm_no_last = confusion_matrix(y_test, y_pred_no_last)
+# Save this model
+joblib.dump(rand_for_no_last_crop, "no_last_crop_forest.pkl")
+
+# Train and test a naive bayes classifier.
+NB_classifier = GaussianNB()
+NB_classifier.fit(X_train_no_last_crop, y_train)
+y_pred_NB = NB_classifier.predict(X_test_no_last_crop)
+NB_accuracy = accuracy_score(y_test, y_pred_NB)
+cm_NB = confusion_matrix(y_test, y_pred_NB)
+joblib.dump(NB_classifier, "NB_classifier.pkl")
+
+# Try XGBoost instead
+X_train_no_last_crop = X_train_no_last_crop.reset_index()
+X_train_no_last_crop = X_train_no_last_crop.iloc[:, 1:]
+from xgboost import XGBClassifier
+XGB_clf = XGBClassifier()
+XGB_clf.fit(X_train_no_last_crop, y_train)
+y_pred_XGB = XGB_clf.predict(X_test_no_last_crop)
+XGB_accuracy = accuracy_score(y_test, y_pred_XGB)
+XGB_precision = precision_score(y_test, y_pred_XGB, average="weighted")
+XGB_recall = recall_score(y_test, y_pred_XGB, average="weighted")
+cm_XGB = confusion_matrix(y_test, y_pred_XGB)
+
+# Try Adaboost
+from sklearn.ensemble import AdaBoostClassifier
+ada_clf = AdaBoostClassifier()
+ada_clf.fit(X_train_no_last_crop, y_train)
+y_pred_ada = ada_clf.predict(X_test_no_last_crop)
+ada_accuracy = accuracy_score(y_test, y_pred_ada)
+joblib.dump(ada_clf, "ada_clf.pkl")
