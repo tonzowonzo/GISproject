@@ -17,8 +17,7 @@ from get_label import get_label
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
 # Constants.
-field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "2", "3", "4", "5",
-               "6", "8", "9", "11", "13", "15", "17"]
+field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6"]
 summer_crops = ["SM, CC-SM", "CC-SB", "SP", "CC-GM"]
 winter_crops = ["WW", "WB", "WR"]
 
@@ -63,7 +62,7 @@ columns = ["date", "day_of_year", "month", "year", "last_crop", "ca", "b", "g",
            "label", "binary_label"]
 train_df = pd.DataFrame(columns=columns)
 test_df = pd.DataFrame(columns=columns)
-test_field_areas = ["1_1", "2", "3", "4"]
+test_field_areas = ["EC3"]
 
 # Loop for getting all files into the dataframe, labelled.
 for field in field_areas:
@@ -373,7 +372,7 @@ from sklearn.ensemble import RandomForestClassifier
 rand_for = RandomForestClassifier()
 
 # Fit the classifier.
-rand_for = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42,
+rand_for = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42,
                                   criterion="entropy")
 rand_for.fit(X_train, y_train)
 
@@ -402,7 +401,7 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 #joblib.dump(svm, "svm.pkl")
 
 # Random forest for without last crop info (1st classification)
-rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=10, random_state=42)
+rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
 X_train_no_last_crop = X_train[["month", "b", "g",
            "r", "nir", "swir1", "swir2", "tirs1", "ndvi"]]
 X_test_no_last_crop = X_test[["month", "b", "g",
@@ -426,10 +425,44 @@ cm_NB = confusion_matrix(y_test, y_pred_NB)
 joblib.dump(NB_classifier, "NB_classifier.pkl")
 
 # Try XGBoost instead
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import StratifiedKFold
+from xgboost import XGBClassifier
+
 X_train_no_last_crop = X_train_no_last_crop.reset_index()
 X_train_no_last_crop = X_train_no_last_crop.iloc[:, 1:]
-from xgboost import XGBClassifier
-XGB_clf = XGBClassifier()
+
+# Search for best xgb params.
+# A parameter grid for XGBoost
+params = {
+        'min_child_weight': [1, 5, 10],
+        'gamma': [0.5, 1, 1.5, 2, 5],
+        'subsample': [0.6, 0.8, 1.0],
+        'colsample_bytree': [0.6, 0.8, 1.0],
+        'max_depth': [3, 4, 5]
+        }
+# Define classifier.
+XGB_clf = XGBClassifier(learning_rate=0.02, n_estimators=200, silent=True,
+                        objective="multi:softmax")
+
+# Create grid search.
+folds = 3
+param_comb = 5
+
+skf = StratifiedKFold(n_splits=folds, shuffle = True, random_state = 1001)
+
+random_search = RandomizedSearchCV(XGB_clf, param_distributions=params, n_iter=param_comb, scoring='roc_auc', 
+                                   n_jobs=4, cv=skf.split(X_train_no_last_crop,y_train), 
+                                   verbose=3, random_state=1001 )
+
+# Here we go
+random_search.fit(X_train_no_last_crop, y_train)
+
+# Print the best estimator.
+print(random_search.best_estimator_)
+
+# Fit the classifier to the training set.
 XGB_clf.fit(X_train_no_last_crop, y_train)
 y_pred_XGB = XGB_clf.predict(X_test_no_last_crop)
 XGB_accuracy = accuracy_score(y_test, y_pred_XGB)
