@@ -20,85 +20,85 @@ def get_label(field_area, date):
         if date < datetime.datetime(2010, 12, 1):
             label = "SM"
             last_crop = "unknown"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2012, 6, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2013, 7, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2014, 12, 1):
             label = "SM"
             last_crop = "WW"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW"
             last_crop = "SM"
         elif date < datetime.datetime(2016, 12, 1):
             label = "GM"
             last_crop = "WW"
-        elif date < datetime.datetime(2017, 7, 1):
+        elif date < datetime.datetime(2017, 9, 1):
             label = "WW"
             last_crop = "GM"
-        elif date < datetime.datetime(2018, 4, 1):
+        elif date < datetime.datetime(2018, 9, 1):
             label = "WR"
             last_crop = "WW"
     
     # Field EC2 - Kraichgau.
     elif field_area == "EC2":
-        if date < datetime.datetime(2010, 6, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WR"
             last_crop = "unknown"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2012, 12, 1):
             label = "SM"
             last_crop = "WW"
-        elif date < datetime.datetime(2013, 7, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WW"
             last_crop = "SM"
         elif date < datetime.datetime(2014, 12, 1):
             label = "SM"
             last_crop = "WW"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2016, 6, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2017, 7, 1):
+        elif date < datetime.datetime(2017, 9, 1):
             label = "WW"
             last_crop = "WR"
-        elif date < datetime.datetime(2018, 7, 1):
+        elif date < datetime.datetime(2018, 9, 1):
             label = "WW"
             last_crop = "WW"
     
     # Field EC3 - Kraichgau.
     elif field_area == "EC3":
-        if date < datetime.datetime(2010, 7, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WW"
             last_crop = "unknown"
         elif date < datetime.datetime(2011, 12, 1):
             label = "SM"
             last_crop = "WW"
-        elif date < datetime.datetime(2012, 7, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2013, 6, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2015, 12, 1):
             label = "SM"
             last_crop = "WW"
-        elif date < datetime.datetime(2016, 7, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2017, 7, 1):
+        elif date < datetime.datetime(2017, 9, 1):
             label = "WW"
             last_crop = "WW"
         elif date < datetime.datetime(2018, 12, 1):
@@ -107,22 +107,22 @@ def get_label(field_area, date):
          
     # Field EC4 - Swaebisch Alp.
     elif field_area == "EC4":
-        if date < datetime.datetime(2010, 6, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WR"
             last_crop = "unknown"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2012, 12, 1):
             label = "SB"
             last_crop = "WW"
-        elif date < datetime.datetime(2013, 4, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "WR"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW" 
             last_crop = "WW"
         elif date < datetime.datetime(2016, 12, 1):
@@ -131,13 +131,13 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2017, 12, 1):
             label = "SM"
             last_crop = "SB"
-        elif date < datetime.datetime(2018, 7, 1):
+        elif date < datetime.datetime(2018, 9, 1):
             label = "WW"
             last_crop = "SM"
             
     # Field EC5 - Swaebisch Alp.
     elif field_area == "EC5":
-        if date < datetime.datetime(2010, 7, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WW"
             last_crop = "unknown"
         elif date < datetime.datetime(2011, 12, 1):
@@ -146,7 +146,7 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2012, 12, 1):
             label = "SM"
             last_crop = "SM"
-        elif date < datetime.datetime(2013, 7, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WB"
             last_crop = "SM"
         elif date < datetime.datetime(2014, 12, 1):
@@ -158,10 +158,10 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2016, 12, 1):
             label = "SM"
             last_crop = "SM"
-        elif date < datetime.datetime(2017, 7, 1):
+        elif date < datetime.datetime(2017, 9, 1):
             label = "WB"
             last_crop = "SM"
-        elif date < datetime.datetime(2018, 4, 1):
+        elif date < datetime.datetime(2018, 9, 1):
             label = "WR"
             last_crop = "WB"
             
@@ -170,37 +170,37 @@ def get_label(field_area, date):
         if date < datetime.datetime(2010, 12, 1):
             label = "SM"
             last_crop = "unknown"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2012, 7, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WB"
             last_crop = "WW"
         elif date < datetime.datetime(2013, 12, 1):
             label = "SM"
             last_crop = "WB"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WB"
             last_crop = "WW"
         elif date < datetime.datetime(2016, 12, 1):
             label = "SM"
             last_crop = "WB"
-        elif date < datetime.datetime(2017, 7, 1):
+        elif date < datetime.datetime(2017, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2018, 7, 1):
+        elif date < datetime.datetime(2018, 9, 1):
             label = "WB"
             last_crop = "WW"
     
     # Field area 1-1 - Kraichgau.
     elif field_area == "1_1":
-        if date < datetime.datetime(2010, 4, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WR"
             last_crop = "unknown"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2011, 12, 1):
@@ -209,16 +209,16 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2012, 12, 1):
             label = "SB"
             last_crop = "GM"
-        elif date < datetime.datetime(2013, 6, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2015, 12, 1):
             label = "irrelevant"
             last_crop = "WW"
-        elif date < datetime.datetime(2016, 7, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "WW"
             last_crop = "unknown"
         elif date < datetime.datetime(2017, 12, 1):
@@ -255,43 +255,43 @@ def get_label(field_area, date):
             
     # Field area 2 - Kraichgau.
     elif field_area == "2":
-        if date < datetime.datetime(2010, 6, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WB"
             last_crop = "WW"
-        elif date < datetime.datetime(2011, 6, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2013, 6, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2015, 12, 1):
             label = "SB"
             last_crop = "WW"
-        elif date < datetime.datetime(2016, 6, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2017, 7, 1):
+        elif date < datetime.datetime(2017, 9, 1):
             label = "WW"
             last_crop = "SB"
             
     # Field area 3 - Kraichgau.
     elif field_area == "3":
-        if date < datetime.datetime(2010, 6, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2012, 12, 1):
             label = "SB"
             last_crop = "WW"
-        elif date < datetime.datetime(2013, 6, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2015, 12, 1):
@@ -300,19 +300,22 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2016, 12, 1):
             label = "SM"
             last_crop = "SB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "SM"
 
     # Field area 4 - Kraichgau.
     elif field_area == "4":
-        if date < datetime.datetime(2010, 7, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "irrelevant"
             last_crop = "SB"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "unknown"
-        elif date < datetime.datetime(2012, 6, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2013, 7, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2014, 12, 1):
@@ -321,7 +324,7 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2015, 12, 1):
             label = "SB"
             last_crop = "SB"
-        elif date < datetime.datetime(2016, 7, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "irrelevant"
             last_crop = "SB"
         elif date < datetime.datetime(2017, 12, 1):
@@ -330,7 +333,7 @@ def get_label(field_area, date):
             
     # Field area 5 - Kraichgau.
     elif field_area == "5":
-        if date < datetime.datetime(2010, 7, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WW"
             last_crop = "WW"
         elif date < datetime.datetime(2011, 12, 1):
@@ -339,16 +342,16 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2012, 12, 1):
             label = "irrelevant"
             last_crop = "SM"
-        elif date < datetime.datetime(2013, 7, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WW"
             last_crop = "unknown"
         elif date < datetime.datetime(2014, 12, 1):
             label = "SM"
             last_crop = "WW"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW"
             last_crop = "SM"
-        elif date < datetime.datetime(2016, 7, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "WB"
             last_crop = "WW"
         elif date < datetime.datetime(2017, 12, 1):
@@ -357,28 +360,28 @@ def get_label(field_area, date):
             
     # Field area 6 - Kraichgau.
     elif field_area == "6":
-        if date < datetime.datetime(2010, 6, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "WR"
-        elif date < datetime.datetime(2012, 6, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2013, 7, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2014, 12, 1):
             label = "irrelevant"
             last_crop = "WW"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW"
             last_crop = "unknown"
-        elif date < datetime.datetime(2016, 6, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2017, 7, 1):
+        elif date < datetime.datetime(2017, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2017, 12, 1):
@@ -387,58 +390,64 @@ def get_label(field_area, date):
             
     # Field area 8 - Kraichgau.
     elif field_area == "8":
-        if date < datetime.datetime(2010, 7, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WW"
             last_crop = "unknown"
-        elif date < datetime.datetime(2011, 6, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2012, 7, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WW"
             last_crop = "WR"
-        elif date < datetime.datetime(2013, 7, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "irrelevant"
             last_crop = "WW"
         elif date < datetime.datetime(2014, 12, 1):
             label = "irrelevant"
             last_crop = "unknown"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW"
             last_crop = "unknown"
-        elif date < datetime.datetime(2016, 6, 1):
+        elif date < datetime.datetime(2016, 9, 1):
             label = "irrelevant"
             last_crop = "WW"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
             
     # Field area 9 - Kraichgau.
     elif field_area == "9":
-        if date < datetime.datetime(2010, 7, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2011, 12, 1):
             label = "GM"
             last_crop = "WW"
-        elif date < datetime.datetime(2012, 7, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WW"
             last_crop = "GM"
         elif date < datetime.datetime(2013, 12, 1):
             label = "SB"
             last_crop = "WW"
-        elif date < datetime.datetime(2014, 6, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2016, 12, 1):
             label = "GM"
             last_crop = "WW"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
             
     # Field area 11 - Kraichgau.
     elif field_area == "11":
-        if date < datetime.datetime(2010, 7, 1):
+        if date < datetime.datetime(2010, 9, 1):
             label = "irrelevant"
             last_crop = "SB"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WW"
             last_crop = "unknown"
         elif date < datetime.datetime(2012, 12, 1):
@@ -447,7 +456,7 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2013, 12, 1):
             label = "irrelevant"
             last_crop = "SB"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "unknown"
         elif date < datetime.datetime(2015, 12, 1):
@@ -456,22 +465,25 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2016, 12, 1):
             label = "irrelevant"
             last_crop = "SB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
             
     # Field area 13 - Kraichgau.
     elif field_area == "13":
         if date < datetime.datetime(2010, 12, 1):
             label = "SB"
             last_crop = "WW"
-        elif date < datetime.datetime(2011, 7, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "irrelevant"
             last_crop = "SB"
-        elif date < datetime.datetime(2012, 7, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WW"
             last_crop = "unknown"
-        elif date < datetime.datetime(2013, 6, 1):
+        elif date < datetime.datetime(2013, 9, 1):
             label = "WR"
             last_crop = "WW"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2015, 12, 1):
@@ -489,19 +501,19 @@ def get_label(field_area, date):
         if date < datetime.datetime(2010, 12, 1):
             label = "SB"
             last_crop = "WW"
-        elif date < datetime.datetime(2011, 6, 1):
+        elif date < datetime.datetime(2011, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2012, 7, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "irrelevant"
             last_crop = "WR"
         elif date < datetime.datetime(2013, 12, 1):
             label = "SB"
             last_crop = "unknown"
-        elif date < datetime.datetime(2014, 6, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WR"
             last_crop = "SB"
-        elif date < datetime.datetime(2015, 7, 1):
+        elif date < datetime.datetime(2015, 9, 1):
             label = "WW"
             last_crop = "WR"
         elif date < datetime.datetime(2017, 12, 1):
@@ -516,13 +528,13 @@ def get_label(field_area, date):
         elif date < datetime.datetime(2011, 12, 1):
             label = "GM"
             last_crop = "SB"
-        elif date < datetime.datetime(2012, 7, 1):
+        elif date < datetime.datetime(2012, 9, 1):
             label = "WW"
             last_crop = "GM"
         elif date < datetime.datetime(2013, 12, 1):
             label = "irrelevant"
             last_crop = "WW"
-        elif date < datetime.datetime(2014, 7, 1):
+        elif date < datetime.datetime(2014, 9, 1):
             label = "WW"
             last_crop = "unknown"
         elif date < datetime.datetime(2015, 12, 1):
@@ -541,6 +553,9 @@ def get_label(field_area, date):
         last_crop = "unknown"
     elif field_area == "CloudShadow":
         label = "CloudShadow"
+        last_crop = "unknown"
+    else:
+        label = "irrelevant"
         last_crop = "unknown"
 
 
