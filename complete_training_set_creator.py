@@ -13,11 +13,14 @@ import math
 # Import the get_label function
 from get_label import get_label
 
+# Import function for getting metadata.
+from temp_from_metadata import get_required_info_from_metadata, calculate_lst
 # Set working directory.
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
 # Constants.
-field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6"]
+field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "2", "3", "4",
+               "5", "6", "8", "9", "11", "13", "15", "17"]
 summer_crops = ["SM, CC-SM", "CC-SB", "SP", "CC-GM"]
 winter_crops = ["WW", "WB", "WR"]
 
@@ -59,10 +62,10 @@ Where:
 '''
 columns = ["date", "day_of_year", "month", "year", "last_crop", "ca", "b", "g",
            "r", "nir", "swir1",  "swir2", "pan", "cir", "tirs1", "tirs2", "ndvi",
-           "label", "binary_label"]
+           "lst", "label", "binary_label"]
 train_df = pd.DataFrame(columns=columns)
 test_df = pd.DataFrame(columns=columns)
-test_field_areas = ["EC3"]
+test_field_areas = ["1_1", "EC3", "15", "17", "5"]
 
 # Loop for getting all files into the dataframe, labelled.
 for field in field_areas:
@@ -79,6 +82,14 @@ for field in field_areas:
             year = datetime.datetime.date(date).year
             # Get the label based on csv.
             label, last_crop = get_label(field, date)
+            # Load the landsat metadata.
+            for meta_file in os.listdir(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/"):
+                split_meta = meta_file.split("_")
+                meta_date = split_meta[3]
+                meta_date = pd.to_datetime(meta_date, format="%Y%m%d")
+                if meta_date == date:
+                    mult, add, k1, k2 = get_required_info_from_metadata(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/" + meta_file,
+                                                                        8)
             # Load the training image.
             ca = cv2.imread(path +  "\\1\\" + file, 0)
             b = cv2.imread(path +  "\\2\\" + file, 0)
@@ -91,7 +102,7 @@ for field in field_areas:
             cir = cv2.imread(path +  "\\9\\" + file, 0)
             tirs1 = cv2.imread(path +  "\\10\\" + file, 0)
             tirs2 = cv2.imread(path +  "\\11\\" + file, 0)
-                            
+            
             # Reshape the panchromatic image to match others.
             img_shape = b.shape[:2]
             pan = cv2.resize(pan, dsize=(img_shape[1], img_shape[0]), 
@@ -135,11 +146,13 @@ for field in field_areas:
                     "year": year, "last_crop": last_crop, "ca": ca, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
                     "swir2": swir2, "pan": pan, "cir": cir, "tirs1": tirs1, 
-                    "tirs2": tirs2, "ndvi": ndvi, "label": label, 
+                    "tirs2": tirs2, "ndvi": ndvi, "lst": 0, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
             df_iter = df_iter[columns]
+            df_iter["lst"] = calculate_lst(df_iter["ndvi"], df_iter["ndvi"].max(), 
+                   df_iter["ndvi"].min(), tirs1, 8, mult, add, k1, k2)
             # Append secondary dataframe to the full dataframe.
             # Choose which df to add to.
 #                random_number = random.randint(1, 100)
@@ -198,6 +211,14 @@ for field in field_areas:
             plt.clim(30, 150)
             plt.show()
             
+            # Load the landsat metadata.
+            for meta_file in os.listdir(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/"):
+                split_meta = meta_file.split("_")
+                meta_date = split_meta[3]
+                meta_date = pd.to_datetime(meta_date, format="%Y%m%d")
+                if meta_date == date:
+                    mult, add, k1, k2 = get_required_info_from_metadata(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/" + meta_file,
+                                                                        7)
             # Turn the 2D image data into a 1D series.
             b = b.ravel()
             g = g.ravel()
@@ -216,11 +237,13 @@ for field in field_areas:
                     "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
                     "g": g, "r": r, "nir": nir, "cir": 0, "swir1": swir1,  
                     "swir2": swir2, "pan": pan, "tirs1": tirs1, "tirs2": 0,
-                    "ndvi": ndvi, "label": label, 
+                    "ndvi": ndvi, "lst": 0, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
             df_iter = df_iter[columns]
+            df_iter["lst"] = calculate_lst(df_iter["ndvi"], df_iter["ndvi"].max(), 
+                               df_iter["ndvi"].min(), tirs1, 7, mult, add, k1, k2)
             # Append secondary dataframe to the full dataframe.
             # Choose which df to add to.
 #                random_number = random.randint(1, 100)
@@ -250,6 +273,15 @@ for field in field_areas:
             year = datetime.datetime.date(date).year
             # Get the label based on csv.
             label, last_crop = get_label(field, date)
+            
+            # Load the landsat metadata.
+            for meta_file in os.listdir(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/"):
+                split_meta = meta_file.split("_")
+                meta_date = split_meta[3]
+                meta_date = pd.to_datetime(meta_date, format="%Y%m%d")
+                if meta_date == date:
+                    mult, add, k1, k2 = get_required_info_from_metadata(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/" + meta_file,
+                                                                        5)
             # Load the training image.
             b = cv2.imread(path +  "\\1\\" + file, 0)
             g = cv2.imread(path +  "\\2\\" + file, 0)
@@ -289,11 +321,13 @@ for field in field_areas:
                     "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
                     "swir2": swir2, "pan": 0, "cir": 0, "tirs1": tirs1, 
-                    "tirs2": 0, "ndvi": ndvi, "label": label, 
+                    "tirs2": 0, "ndvi": ndvi, "lst": 0, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
             df_iter = df_iter[columns]
+            df_iter["lst"] = calculate_lst(df_iter["ndvi"], df_iter["ndvi"].max(), 
+                               df_iter["ndvi"].min(), tirs1, 5, mult, add, k1, k2)
             # Append secondary dataframe to the full dataframe.
             # Choose which df to add to.
 #                random_number = random.randint(1, 100)
@@ -313,6 +347,10 @@ for field in field_areas:
 # Drop the black pixels in the dataframe.
 train_df = train_df[(train_df.r != 0) & (train_df.g != 0) & (train_df.b != 0)]
 test_df = test_df[(test_df.r != 0) & (test_df.g != 0) & (test_df.b != 0)]
+
+# Remove infrared with no value.
+train_df = train_df[train_df.tirs1 != 0]
+test_df = test_df[test_df.tirs1 != 0]
 
 # Drop values whose date is between September and March.
 train_df = train_df[train_df.label != "irrelevant"]
@@ -416,14 +454,6 @@ cm_no_last = confusion_matrix(y_test, y_pred_no_last)
 # Save this model
 joblib.dump(rand_for_no_last_crop, "no_last_crop_forest.pkl")
 
-# Train and test a naive bayes classifier.
-NB_classifier = GaussianNB()
-NB_classifier.fit(X_train_no_last_crop, y_train)
-y_pred_NB = NB_classifier.predict(X_test_no_last_crop)
-NB_accuracy = accuracy_score(y_test, y_pred_NB)
-cm_NB = confusion_matrix(y_test, y_pred_NB)
-joblib.dump(NB_classifier, "NB_classifier.pkl")
-
 # Try XGBoost instead
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.metrics import roc_auc_score
@@ -435,32 +465,32 @@ X_train_no_last_crop = X_train_no_last_crop.iloc[:, 1:]
 
 # Search for best xgb params.
 # A parameter grid for XGBoost
-params = {
-        'min_child_weight': [1, 5, 10],
-        'gamma': [0.5, 1, 1.5, 2, 5],
-        'subsample': [0.6, 0.8, 1.0],
-        'colsample_bytree': [0.6, 0.8, 1.0],
-        'max_depth': [3, 4, 5]
-        }
+#params = {
+#        'min_child_weight': [1, 5, 10],
+#        'gamma': [0.5, 1, 1.5, 2, 5],
+#        'subsample': [0.6, 0.8, 1.0],
+#        'colsample_bytree': [0.6, 0.8, 1.0],
+#        'max_depth': [3, 4, 5]
+#        }
 # Define classifier.
 XGB_clf = XGBClassifier(learning_rate=0.02, n_estimators=200, silent=True,
-                        objective="multi:softmax")
+                        objective="multi:softmax", scoring="roc_auc")
 
-# Create grid search.
-folds = 3
-param_comb = 5
-
-skf = StratifiedKFold(n_splits=folds, shuffle = True, random_state = 1001)
-
-random_search = RandomizedSearchCV(XGB_clf, param_distributions=params, n_iter=param_comb, scoring='roc_auc', 
-                                   n_jobs=4, cv=skf.split(X_train_no_last_crop,y_train), 
-                                   verbose=3, random_state=1001 )
+## Create grid search.
+#folds = 3
+#param_comb = 5
+#
+#skf = StratifiedKFold(n_splits=folds, shuffle = True, random_state = 1001)
+#
+#random_search = RandomizedSearchCV(XGB_clf, param_distributions=params, n_iter=param_comb, scoring='roc_auc', 
+#                                   n_jobs=4, cv=skf.split(X_train_no_last_crop,y_train), 
+#                                   verbose=3, random_state=1001 )
 
 # Here we go
-random_search.fit(X_train_no_last_crop, y_train)
+#random_search.fit(X_train_no_last_crop, y_train)
 
 # Print the best estimator.
-print(random_search.best_estimator_)
+#print(random_search.best_estimator_)
 
 # Fit the classifier to the training set.
 XGB_clf.fit(X_train_no_last_crop, y_train)
