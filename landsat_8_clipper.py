@@ -6,7 +6,8 @@ import arcpy
 # Define rootdir.
 rootdir = r"C:/Users/Tim/Desktop/GIS/GISproject/"
 # Define variables to iterate over.
-clip_shape = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6"]
+clip_shape = ["18_1", "18_2", "18_4", "19", "20", "21", "23", "25", "26", "27",
+              "28", "29", "30", "33"]
 band_locations = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]
 bands = ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11"]
 
@@ -21,7 +22,7 @@ def clip_image(clip_features, in_features, output_location):
                           )
     
 for shape in clip_shape:
-    if shape in ["EC1", "EC2", "EC3"]:
+    if shape in clip_shape:
         # Define the path/row that is used.
         path_row = "195026"
     else:
