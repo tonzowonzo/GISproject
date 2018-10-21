@@ -6,6 +6,23 @@ def get_label(field_area, date):
     '''
     Returns the label of an image based on the csv that shows which label is in
     which area by time.
+    
+    Where:
+        SM: Silomaise
+        WW: Winter wheat
+        WR: Winter rape
+        WB: Winter barley
+        GM: Grain maise
+        SB: Spring barley
+        SP: Spelt / Dinkel
+        B: Beet
+        C: Clover / Kleegras
+        TC: Triticale
+        M: Mais
+        O: Oats
+        MU: Mustard
+        P: Peas
+        Irrelevant: Crop not being classified
     '''
     # If the crop is either a cover crop or no cover (during winter).
     if date.month >= 9 or date.month <= 3:
@@ -225,33 +242,32 @@ def get_label(field_area, date):
             label = "irrelevant"
             last_crop = "WW"
 
-#    # Field area 1-4 - Kraichgau.
-#    # CHANGE THIS ONE LATER, IT'S WRONG.
-#    elif field_area == "1_4":
-#        if date < datetime.datetime(2010, 7, 1):
-#            label = "WW"
-#            last_crop = "WW"
-#        elif date < datetime.datetime(2011, 6, 1):
-#            label = "WR"
-#            last_crop = "SB"
-#        elif date < datetime.datetime(2012, 12, 1):
-#            label = "SB"
-#            last_crop= "WR"
-#        elif date < datetime.datetime(2013, 6, 1):
-#            label = "WR"
-#            last_crop = "SB"
-#        elif date < datetime.datetime(2014, 7, 1):
-#            label = "WW"
-#            last_crop = "WR"
-#        elif date < datetime.datetime(2015, 12, 1):
-#            label = "SB"
-#            last_crop = "WW"
-#        elif date < datetime.datetime(2016, 6, 1):
-#            label = "WR"
-#            last_crop = "SB"
-#        elif date < datetime.datetime(2017, 7, 1):
-#            label = "WW"
-#            last_crop = "SB"
+    # Field area 1-4 - Kraichgau.
+    elif field_area == "1_4":
+        if date < datetime.datetime(2010, 9, 1):
+            label = "B"
+            last_crop = "SB"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "GM"
+            last_crop = "B"
+        elif date < datetime.datetime(2012, 12, 1):
+            label = "WW"
+            last_crop= "GM"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "B"
+            last_crop = "SB"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "WW"
+            last_crop = "B"
+        elif date < datetime.datetime(2016, 9, 1):
+            label = "SM"
+            last_crop = "WW"
+        elif date < datetime.datetime(2017, 9, 1):
+            label = "WW"
+            last_crop = "SB"
             
     # Field area 2 - Kraichgau.
     elif field_area == "2":
@@ -547,6 +563,362 @@ def get_label(field_area, date):
             label = "irrelevant"
             last_crop = "unknown"
 
+    # Field area 18_1 - Alps.
+    elif field_area == "18_1":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SB"
+            last_crop = "C"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "SB"
+            last_crop = "SB"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "SB"
+            last_crop = "SB"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "SM"
+            last_crop = "SB"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "WW"
+            last_crop = "SM"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "C"
+            last_crop = "SB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "C"
+            last_crop = "C"
+
+    # Field area 18_2 - Alps.
+    elif field_area == "18_2":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "TC"
+            last_crop = "SB"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "M"
+            last_crop = "TC"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "WW"
+            last_crop = "M"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "MU"
+            last_crop = "WW"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "MU"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "P"
+            last_crop = "SB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "WW"
+            last_crop = "P"
+            
+    # Field area 18_4 - Alps.
+    elif field_area == "18_4":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SB"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "TC"
+            last_crop = "SB"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "irrelevant"
+            last_crop = "TC"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "SB"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "WW"
+            
+    # Field area 19 - Alps.
+    elif field_area == "19":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SP"
+            last_crop = "SM"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "SB"
+            last_crop = "SP"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "WB"
+            last_crop = "SB"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "WR"
+            last_crop = "WB"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "MU"
+            last_crop = "WW"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "WW"
+            last_crop = "MU"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "SP"
+            last_crop = "WW"
+            
+    # Field area 20 - Alps.
+    elif field_area == "20":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SP"
+            last_crop = "SP"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "WB"
+            last_crop = "SP"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "WR"
+            last_crop = "WB"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "SP"
+            last_crop = "WR"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "irrelevant"
+            last_crop = "SP"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "WB"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "WR"
+            last_crop = "WB"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "WW"
+            last_crop = "WR"
+            
+    # Field area 21 - Alps.
+    elif field_area == "21":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "TC"
+            last_crop = "WB"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "P"
+            last_crop = "TC"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "C"
+            last_crop = "P"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "P"
+            last_crop = "C"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "C"
+            last_crop = "P"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SP"
+            last_crop = "C"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "irrelevant"
+            last_crop = "SP"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "SB"
+            last_crop = "unknown"
+            
+    # Field area 23 - Alps.
+    elif field_area == "23":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "WW"
+            last_crop = "unknown"
+            
+    # Field area 25 - Alps.
+    elif field_area == "25":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "O"
+            last_crop = "WB"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "SB"
+            last_crop = "O"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "C"
+            last_crop = "SB"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "C"
+            last_crop = "C"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "C"
+            last_crop = "C"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "C"
+            last_crop = "C"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "C"
+            last_crop = "C"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "C"
+            last_crop = "C"
+            
+    # Field area 26 - Alps.
+    elif field_area == "26":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "SB"
+            last_crop = "SB"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "WR"
+            last_crop = "SB"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "C"
+            last_crop = "WW"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "SP"
+            last_crop = "C"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "SP"
+            
+    # Field area 27 - Alps.
+    elif field_area == "27":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "irrelevant"
+            last_crop = "WW"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "C"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "C"
+            last_crop = "C"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "C"
+            last_crop = "C"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "C"
+            last_crop = "C"
+            
+    # Field area 28 - Alps.
+    elif field_area == "28":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "WB"
+            last_crop = "SP"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "WR"
+            last_crop = "WB"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "WW"
+            last_crop = "WR"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "WW"
+            last_crop = "WW"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "MU"
+            last_crop = "WW"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SP"
+            last_crop = "MU"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "WB"
+            last_crop = "SP"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "WR"
+            last_crop = "WB"
+            
+    # Field area 29 - Alps.
+    elif field_area == "29":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "SB"
+            last_crop = "O"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "SM"
+            last_crop = "SB"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "WW"
+            last_crop = "SM"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "M"
+            last_crop = "WW"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "WW"
+            last_crop = "M"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "SB"
+            last_crop = "WW"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+            
+    # Field area 30 - Alps.
+    elif field_area == "30":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "O"
+            last_crop = "SB"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "SP"
+            last_crop = "O"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "SB"
+            last_crop = "SP"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "irrelevant"
+            last_crop = "SB"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "C"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "WW"
+            last_crop = "C"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "irrelevant"
+            last_crop = "WW"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+            
+    # Field area 33 - Alps.
+    elif field_area == "33":
+        if date < datetime.datetime(2010, 12, 1):
+            label = "irrelevant"
+            last_crop = "TC"
+        elif date < datetime.datetime(2011, 9, 1):
+            label = "SM"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2012, 9, 1):
+            label = "SB"
+            last_crop = "SM"
+        elif date < datetime.datetime(2013, 9, 1):
+            label = "O"
+            last_crop = "SB"
+        elif date < datetime.datetime(2014, 9, 1):
+            label = "irrelevant"
+            last_crop = "O"
+        elif date < datetime.datetime(2015, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2016, 12, 1):
+            label = "WW"
+            last_crop = "unknown"
+        elif date < datetime.datetime(2017, 12, 1):
+            label = "irrelevant"
+            last_crop = "unknown"
             
     elif field_area == "Cloud":
         label = "Cloud"
