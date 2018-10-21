@@ -19,8 +19,8 @@ from temp_from_metadata import get_required_info_from_metadata, calculate_lst
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
 # Constants.
-field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "2", "3", "4",
-               "5", "6", "8", "9", "11", "13", "15", "17"]
+field_areas = ["Cloud", "EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "2", "3",
+               "4", "5", "6", "8", "9", "11", "13", "15", "17"]
 summer_crops = ["SM, CC-SM", "CC-SB", "SP", "CC-GM"]
 winter_crops = ["WW", "WB", "WR"]
 
@@ -62,10 +62,25 @@ Where:
 '''
 columns = ["date", "day_of_year", "month", "year", "last_crop", "ca", "b", "g",
            "r", "nir", "swir1",  "swir2", "pan", "cir", "tirs1", "tirs2", "ndvi",
+           "last_ca", "last_b", "last_g", "last_r", "last_nir", "last_swir1", 
+           "last_swir2", "last_pan", "last_cir", "last_tirs1", "last_tirs2", 
            "lst", "label", "binary_label"]
 train_df = pd.DataFrame(columns=columns)
 test_df = pd.DataFrame(columns=columns)
-test_field_areas = ["1_1", "EC3", "15", "17", "5"]
+test_field_areas = ["EC3", "1_1", "4", "5", "8", "15"]
+
+# Values for the first iteration only.
+last_ca = 0
+last_b = 0
+last_g = 0
+last_r = 0
+last_nir = 0
+last_swir1 = 0
+last_swir2 = 0
+last_pan = 0
+last_cir = 0
+last_tirs1 = 0
+last_tirs2 = 0
 
 # Loop for getting all files into the dataframe, labelled.
 for field in field_areas:
@@ -139,14 +154,19 @@ for field in field_areas:
             
             # Calculate NDVI.
             ndvi = (nir - r) / (nir + r)
-            
-            
+
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
                     "year": year, "last_crop": last_crop, "ca": ca, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
                     "swir2": swir2, "pan": pan, "cir": cir, "tirs1": tirs1, 
-                    "tirs2": tirs2, "ndvi": ndvi, "lst": 0, "label": label, 
+                    "tirs2": tirs2, "ndvi": ndvi, "last_ca": last_ca,
+                    "last_b": last_b, "last_g": last_g, "last_r": last_r,
+                    "last_nir": last_nir, "last_swir1": last_swir1, 
+                    "last_swir2": last_swir2, "last_pan": last_pan,
+                    "last_cir": last_cir,
+                    "last_tirs1": last_tirs1, "last_tirs2": last_tirs2,
+                    "lst": 0, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
@@ -164,7 +184,34 @@ for field in field_areas:
                 test_df = test_df.append(df_iter)
             else:
                 train_df = train_df.append(df_iter)       
-                
+            
+            # Get last values to pass to next iteration.
+            b = b[b != 0]
+            g = g[g != 0]
+            r = r[r != 0]
+            nir = nir[nir != 0]
+            swir1 = swir1[swir1 != 0]
+            swir2 = swir2[swir2 != 0]
+            tirs1 = tirs1[tirs1 != 0]
+            pan = pan[pan != 0]
+            ca = ca[ca != 0]
+            tirs2 = tirs2[tirs2 != 0]
+            cir = cir[cir != 0]
+            
+            last_ca = ca.mean()
+            last_b = b.mean()
+            last_g = g.mean()
+            last_r = r.mean()
+            last_nir = nir.mean()
+            last_swir1 = swir1.mean()
+            last_swir2 = swir2.mean()
+            last_pan = pan.mean()
+            last_cir = cir.mean()
+            last_tirs1 = tirs1.mean()
+            last_tirs2 = tirs2.mean()
+            
+            
+            
 ###############################################################################
 # Landsat 7.
 ###############################################################################
@@ -235,9 +282,15 @@ for field in field_areas:
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
                     "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
-                    "g": g, "r": r, "nir": nir, "cir": 0, "swir1": swir1,  
-                    "swir2": swir2, "pan": pan, "tirs1": tirs1, "tirs2": 0,
-                    "ndvi": ndvi, "lst": 0, "label": label, 
+                    "g": g, "r": r, "nir": nir, "swir1": swir1,  
+                    "swir2": swir2, "pan": pan, "cir": 0, "tirs1": tirs1, 
+                    "tirs2": 0, "ndvi": ndvi, "last_ca": 0,
+                    "last_b": last_b, "last_g": last_g, "last_r": last_r,
+                    "last_nir": last_nir, "last_swir1": last_swir1, 
+                    "last_swir2": last_swir2, "last_pan": last_pan,
+                    "last_cir": 0,
+                    "last_tirs1": last_tirs1, "last_tirs2": 0,
+                    "lst": 0, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
@@ -254,7 +307,27 @@ for field in field_areas:
             if field in test_field_areas:
                 test_df = test_df.append(df_iter)
             else:
-                train_df = train_df.append(df_iter)                      
+                train_df = train_df.append(df_iter)  
+
+            # Get last values to pass to next iteration.
+            b = b[b != 0]
+            g = g[g != 0]
+            r = r[r != 0]
+            nir = nir[nir != 0]
+            swir1 = swir1[swir1 != 0]
+            swir2 = swir2[swir2 != 0]
+            tirs1 = tirs1[tirs1 != 0]
+            pan = pan[pan != 0]
+            
+            last_b = b.mean()
+            last_g = g.mean()
+            last_r = r.mean()
+            last_nir = nir.mean()
+            last_swir1 = swir1.mean()
+            last_swir2 = swir2.mean()
+            last_pan = pan.mean()
+            last_tirs1 = tirs1.mean()
+                  
 ###############################################################################
 # Landsat 5.
 ###############################################################################
@@ -321,7 +394,13 @@ for field in field_areas:
                     "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
                     "swir2": swir2, "pan": 0, "cir": 0, "tirs1": tirs1, 
-                    "tirs2": 0, "ndvi": ndvi, "lst": 0, "label": label, 
+                    "tirs2": 0, "ndvi": ndvi, "last_ca": 0,
+                    "last_b": last_b, "last_g": last_g, "last_r": last_r,
+                    "last_nir": last_nir, "last_swir1": last_swir1, 
+                    "last_swir2": last_swir2, "last_pan": 0,
+                    "last_cir": 0,
+                    "last_tirs1": last_tirs1, "last_tirs2": 0,
+                    "lst": 0, "label": label, 
                     "binary_label": summer_or_winter_crop}
             
             df_iter = pd.DataFrame(data=data)
@@ -339,6 +418,23 @@ for field in field_areas:
                 test_df = test_df.append(df_iter)
             else:
                 train_df = train_df.append(df_iter) 
+                
+            # Get last values to pass to next iteration.
+            b = b[b != 0]
+            g = g[g != 0]
+            r = r[r != 0]
+            nir = nir[nir != 0]
+            swir1 = swir1[swir1 != 0]
+            swir2 = swir2[swir2 != 0]
+            tirs1 = tirs1[tirs1 != 0]
+
+            last_b = b.mean()
+            last_g = g.mean()
+            last_r = r.mean()
+            last_nir = nir.mean()
+            last_swir1 = swir1.mean()
+            last_swir2 = swir2.mean()
+            last_tirs1 = tirs1.mean()
                 
 ###############################################################################
 # Prepare dataframe for training.
@@ -441,9 +537,11 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
 X_train_no_last_crop = X_train[["month", "b", "g",
-           "r", "nir", "swir1", "swir2", "tirs1", "ndvi"]]
+           "r", "nir", "swir1", "swir2", "tirs1", "ndvi", "last_b", "last_g",
+           "last_r", "last_nir", "last_swir1", "last_swir2", "last_tirs1"]]
 X_test_no_last_crop = X_test[["month", "b", "g",
-           "r", "nir", "swir1", "swir2", "tirs1", "ndvi"]]
+           "r", "nir", "swir1", "swir2", "tirs1", "ndvi", "last_b", "last_g",
+           "last_r", "last_nir", "last_swir1", "last_swir2", "last_tirs1"]]
 rand_for_no_last_crop.fit(X_train_no_last_crop, y_train)
 y_pred_no_last = rand_for_no_last_crop.predict(X_test_no_last_crop)
 accuracy_no_last = accuracy_score(y_test, y_pred_no_last)
@@ -506,4 +604,5 @@ ada_clf = AdaBoostClassifier()
 ada_clf.fit(X_train_no_last_crop, y_train)
 y_pred_ada = ada_clf.predict(X_test_no_last_crop)
 ada_accuracy = accuracy_score(y_test, y_pred_ada)
+cm_ada = confusion_matrix(y_test, y_pred_ada)
 joblib.dump(ada_clf, "ada_clf.pkl")
