@@ -19,7 +19,9 @@ from temp_from_metadata import get_required_info_from_metadata, calculate_lst
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
 # Constants.
-field_areas = ["Cloud", "EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "2", "3",
+field_areas = ["Cloud", "18_1", "18_2",
+               "18_4", "19", "20", "21", "23", "25", "26", "27", "28", "29",
+               "30", "33", "EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "3",
                "4", "5", "6", "8", "9", "11", "13", "15", "17"]
 summer_crops = ["SM, CC-SM", "CC-SB", "SP", "CC-GM"]
 winter_crops = ["WW", "WB", "WR"]
@@ -67,7 +69,7 @@ columns = ["date", "day_of_year", "month", "year", "last_crop", "ca", "b", "g",
            "lst", "label", "binary_label"]
 train_df = pd.DataFrame(columns=columns)
 test_df = pd.DataFrame(columns=columns)
-test_field_areas = ["EC3", "1_1", "4", "5", "8", "15"]
+test_field_areas = ["EC3", "1_1", "4", "5"]
 
 # Values for the first iteration only.
 last_ca = 0
