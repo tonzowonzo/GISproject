@@ -70,7 +70,7 @@ columns = ["date", "day_of_year", "month", "year", "last_crop", "ca", "b", "g",
            "lst", "label", "binary_label"]
 train_df = pd.DataFrame(columns=columns)
 test_df = pd.DataFrame(columns=columns)
-test_field_areas = ["EC3", "EC4", "4", "5", "18_1", "33"]
+test_field_areas = ["EC3", "4", "5", "18_1", "33"]
 
 # Values for the first iteration only.
 last_ca = 0
