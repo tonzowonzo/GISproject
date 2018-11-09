@@ -1,6 +1,15 @@
 # Binary classifier.
 # Creates a training and test dataframe from full landsat 5 - 8 information.
-
+# Classifies whether crop is summer or winter.
+# Current accuracy - 93%
+# 2010 Accuracy - NA
+# 2011 Accuracy - 44%
+# 2012 Accuracy - 46%
+# 2013 Accuracy - NA
+# 2014 Accuracy - 72%
+# 2015 Accuracy - NA
+# 2016 Accuracy - 82%
+# 2017 Accuracy - 100%
 # Import libraries.
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,7 +21,7 @@ import random
 import math
 
 # Import the get_label function
-from get_label import get_label
+from get_label import get_label_combined_maize
 
 # Import function for getting metadata.
 from temp_from_metadata import get_required_info_from_metadata, calculate_lst
@@ -20,11 +29,10 @@ from temp_from_metadata import get_required_info_from_metadata, calculate_lst
 os.chdir("C:/Users/Tim/Desktop/GIS/GISproject")
 
 # Constants.
-field_areas = ["Cloud", "18_1", "18_2",
-               "18_4", "19", "20", "21", "23", "25", "26", "27", "28", "29",
-               "30", "33", "EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "3",
-               "4", "5", "6", "8", "9", "11", "13", "15", "17"]
-summer_crops = ["SM", "SB", "GM", "B", "M"]
+field_areas = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "1_1", "3", "4", "5",
+               "6", "8", "9", "11", "13", "15", "17", "18_1", "18_2", "18_4", "19",
+               "20", "21", "23", "25", "26", "27", "28", "29", "30", "33"]
+summer_crops = ["B", "M", "SB", "GM", "SM"]
 winter_crops = ["WW", "WB", "WR", "P", "SP" "TC", "O"]
 
 ###############################################################################
@@ -99,7 +107,7 @@ for field in field_areas:
             month = datetime.datetime.date(date).month
             year = datetime.datetime.date(date).year
             # Get the label based on csv.
-            label, last_crop = get_label(field, date)
+            label, last_crop = get_label_combined_maize(field, date)
             # Load the landsat metadata.
             for meta_file in os.listdir(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/"):
                 split_meta = meta_file.split("_")
@@ -232,7 +240,7 @@ for field in field_areas:
             month = datetime.datetime.date(date).month
             year = datetime.datetime.date(date).year
             # Get the label based on csv.
-            label, last_crop = get_label(field, date)
+            label, last_crop = get_label_combined_maize(field, date)
             # Load the training image.
             b = cv2.imread(path +  "\\1\\" + file, 0)
             g = cv2.imread(path +  "\\2\\" + file, 0)
@@ -348,7 +356,7 @@ for field in field_areas:
             month = datetime.datetime.date(date).month
             year = datetime.datetime.date(date).year
             # Get the label based on csv.
-            label, last_crop = get_label(field, date)
+            label, last_crop = get_label_combined_maize(field, date)
             
             # Load the landsat metadata.
             for meta_file in os.listdir(r"C:/Users/Tim/Desktop/GIS/GISproject/landsat/metadata/"):
@@ -471,9 +479,20 @@ test_df = test_df.dropna()
 train_df = train_df[train_df.binary_label != "other"]
 test_df = test_df[test_df.binary_label != "other"]
 
-# Save the dataframe as a csv.
-train_df.to_csv(r"C:/Users/Tim/Desktop/GIS/GISproject/train_df.csv")
-test_df.to_csv(r"C:/Users/Tim/Desktop/GIS/GISproject/test_df.csv")
+# Drop all months but august.
+#train_df_aug = train_df[(train_df.month == 3)]
+#test_df_aug = test_df[(test_df.month == 3)]
+
+# Drop everything but late march.
+train_df_aug = train_df[(train_df.day_of_year >= 75) & (train_df.day_of_year <= 90)]
+test_df_aug = test_df[(test_df.day_of_year >= 75) & (test_df.day_of_year <= 90)]
+
+## Drop all years but 2016, 2017.
+#test_df_aug = test_df_aug[test_df_aug.year == 2015]
+
+## Save the dataframe as a csv.
+#train_df.to_csv(r"C:/Users/Tim/Desktop/GIS/GISproject/train_df.csv")
+#test_df.to_csv(r"C:/Users/Tim/Desktop/GIS/GISproject/test_df.csv")
 
 ## Load the dfs back
 #train_df = pd.read_csv(r"C:/Users/Tim/Desktop/GIS/GISproject/train_df.csv")
@@ -482,8 +501,8 @@ test_df.to_csv(r"C:/Users/Tim/Desktop/GIS/GISproject/test_df.csv")
 # Encode labels.
 from sklearn.preprocessing import LabelEncoder
 # Get X and y training data
-X_train = train_df.iloc[:, 1:-2]
-y_train = train_df.iloc[:, -1]
+X_train = train_df_aug.iloc[:, 1:-2]
+y_train = train_df_aug.iloc[:, -1]
 
 # Encode train labels.
 encoder = LabelEncoder()
@@ -498,8 +517,8 @@ X_train.last_crop = X_encode_values
 
 # Encode test labels, prepare test set.
 # Get X and y training data.
-X_test = test_df.iloc[:, 1:-2]
-y_test = test_df.iloc[:, -1]
+X_test = test_df_aug.iloc[:, 1:-2]
+y_test = test_df_aug.iloc[:, -1]
 # Encode the y_test labels.
 y_test = encoder.transform(y_test)
 
@@ -551,12 +570,10 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
-X_train_no_last_crop = X_train[["month", "b", "g",
-           "r", "nir", "swir1", "swir2", "tirs1", "ndvi", "last_b", "last_g",
-           "last_r", "last_nir", "last_swir1", "last_swir2", "last_tirs1"]]
-X_test_no_last_crop = X_test[["month", "b", "g",
-           "r", "nir", "swir1", "swir2", "tirs1", "ndvi", "last_b", "last_g",
-           "last_r", "last_nir", "last_swir1", "last_swir2", "last_tirs1"]]
+X_train_no_last_crop = X_train[["month", "ndvi"]]
+X_test_no_last_crop = X_test[["month", "ndvi"]]
+X_train_no_last_crop["ndvi_ratio"] = X_train["month"] * X_train["ndvi"]
+X_test_no_last_crop["ndvi_ratio"] = X_test["month"] * X_test["ndvi"]
 rand_for_no_last_crop.fit(X_train_no_last_crop, y_train)
 y_pred_no_last = rand_for_no_last_crop.predict(X_test_no_last_crop)
 accuracy_no_last = accuracy_score(y_test, y_pred_no_last)
@@ -576,34 +593,9 @@ from xgboost import XGBClassifier
 X_train_no_last_crop = X_train_no_last_crop.reset_index()
 X_train_no_last_crop = X_train_no_last_crop.iloc[:, 1:]
 
-# Search for best xgb params.
-# A parameter grid for XGBoost
-#params = {
-#        'min_child_weight': [1, 5, 10],
-#        'gamma': [0.5, 1, 1.5, 2, 5],
-#        'subsample': [0.6, 0.8, 1.0],
-#        'colsample_bytree': [0.6, 0.8, 1.0],
-#        'max_depth': [3, 4, 5]
-#        }
 # Define classifier.
 XGB_clf = XGBClassifier(learning_rate=0.02, n_estimators=200, silent=True,
                         objective="binary:logistic", scoring="roc_auc")
-
-## Create grid search.
-#folds = 3
-#param_comb = 5
-#
-#skf = StratifiedKFold(n_splits=folds, shuffle = True, random_state = 1001)
-#
-#random_search = RandomizedSearchCV(XGB_clf, param_distributions=params, n_iter=param_comb, scoring='roc_auc', 
-#                                   n_jobs=4, cv=skf.split(X_train_no_last_crop,y_train), 
-#                                   verbose=3, random_state=1001 )
-
-# Here we go
-#random_search.fit(X_train_no_last_crop, y_train)
-
-# Print the best estimator.
-#print(random_search.best_estimator_)
 
 # Fit the classifier to the training set.
 XGB_clf.fit(X_train_no_last_crop, y_train)
@@ -613,11 +605,175 @@ XGB_precision = precision_score(y_test, y_pred_XGB, average="weighted")
 XGB_recall = recall_score(y_test, y_pred_XGB, average="weighted")
 cm_XGB = confusion_matrix(y_test, y_pred_XGB)
 
-# Try Adaboost
-from sklearn.ensemble import AdaBoostClassifier
-ada_clf = AdaBoostClassifier()
-ada_clf.fit(X_train_no_last_crop, y_train)
-y_pred_ada = ada_clf.predict(X_test_no_last_crop)
-ada_accuracy = accuracy_score(y_test, y_pred_ada)
-cm_ada = confusion_matrix(y_test, y_pred_ada)
-joblib.dump(ada_clf, "ada_clf.pkl")
+# Get classification accuracy by class for xgboost.
+# Approx. 93% accuracy.
+from sklearn.metrics import classification_report
+print(classification_report(y_test, y_pred_XGB))
+
+# Add the prediction to the column.
+X_test_no_last_crop["summer_or_winter"] = y_pred_XGB
+
+###############################################################################
+# Create columns for X_train.
+###############################################################################
+# For step by step classification.
+train_df["2a"] = 0
+train_df["2b"] = 0
+train_df["3c"] = 0
+train_df["4a"] = 0
+
+# Give the columns their corresponding values.
+# Labels for step 2a.
+train_df["2a"] = (train_df["label"] == "WW") | (train_df["label"] == "WR") | (train_df["label"] == "WB") | (train_df["label"] == "TC") | (train_df["label"] == "SP")
+# Labels for step 2b.
+train_df["2b"] = (train_df["label"] == "WR") | (train_df["label"] == "TC")
+# Labels for step 3c.
+train_df["3c"] = (train_df["label"] == "M") | (train_df["label"] == "B") | (train_df["label"] == "SB")
+# Labels for step 4a.
+train_df["4a"] = (train_df["label"] == "WB") | (train_df["label"] == "WW")
+
+# Encode df values.
+# Encode labels.
+from sklearn.preprocessing import LabelEncoder
+# Get X and y training data
+train_final = train_df[["day_of_year", "month", "g", "nir", "ndvi", "2a", "2b",
+                          "3c", "4a", "label"]]
+
+# Encode train labels.
+encoder = LabelEncoder()
+encoder.fit(train_final["label"])
+train_final["label"] = encoder.transform(train_final["label"])
+
+###############################################################################
+# Do the same as above for the test dataset.
+###############################################################################
+# For step by step classification.
+test_df["2a"] = 0
+test_df["2b"] = 0
+test_df["3c"] = 0
+test_df["4a"] = 0
+
+# Give the columns their corresponding values.
+# Labels for step 2a.
+test_df["2a"] = (test_df["label"] == "WW") | (test_df["label"] == "WR") | (test_df["label"] == "WB") | (test_df["label"] == "TC") | (test_df["label"] == "SP")
+# Labels for step 2b.
+test_df["2b"] = (test_df["label"] == "WR") | (test_df["label"] == "TC")
+# Labels for step 3c.
+test_df["3c"] = (test_df["label"] == "M") | (test_df["label"] == "B") | (test_df["label"] == "SB")
+# Labels for step 4a.
+test_df["4a"] = (test_df["label"] == "WB") | (test_df["label"] == "WW")
+
+# Encode labels.
+from sklearn.preprocessing import LabelEncoder
+# Get X and y training data
+test_final = test_df[["day_of_year", "month", "g", "nir", "ndvi", "2a", "2b",
+                          "3c", "4a", "label"]]
+# Encode train labels.
+test_final["label"] = encoder.transform(test_final["label"])
+
+# Labels are as follows:
+'''
+0: B
+1: M
+2: O
+3: P
+4: SB
+5: WB
+6: WR
+7: WW
+'''
+###############################################################################
+# Train the classifier for 2a (WR vs WW and WB)
+###############################################################################
+for_clf_2a = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
+train_2a = train_final.copy()
+# Create training data only with relevant crops.
+train_2a = train_2a[train_2a["2a"] == True]
+train_2a["label"] = train_2a["label"].where(train_2a["label"] == 6, 0)
+
+# Limit the dates.
+train_2a = train_2a[(train_2a["day_of_year"] >= 120) & (train_2a["day_of_year"] <= 160)]
+X_train_2a = train_2a.iloc[:, :5]
+y_train_2a = train_2a.iloc[:, -1]
+# Fit the classifier.
+for_clf_2a.fit(X_train_2a, y_train_2a[:, np.newaxis])
+# Prepare test dataset.
+test_2a = test_final.copy()
+# Create training data only with relevant crops.
+test_2a = test_2a[test_2a["2a"] == True]
+test_2a["label"] = test_2a["label"].where(test_2a["label"] == 6, 1)
+
+# Limit the dates.
+test_2a = test_2a[(test_2a["day_of_year"] >= 120) & (test_2a["day_of_year"] <= 180)]
+X_test_2a = test_2a.iloc[:, :5]
+y_test_2a = test_2a.iloc[:, -1]
+# Predict y for 2a.
+y_pred_2a = for_clf_2a.predict(X_test_2a)
+# Accuracy.
+accuracy_2a = accuracy_score(y_test_2a, y_pred_2a)
+cm_2a = confusion_matrix(y_test_2a, y_pred_2a)
+# 90% accuracy.
+
+###############################################################################
+# Train the classifier for 3c (B from M)
+###############################################################################
+for_clf_3c = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
+train_3c = train_final.copy()
+# Create training data only with relevant crops.
+train_3c = train_3c[train_3c["3c"] == True]
+train_3c["label"] = train_3c["label"].where(train_3c["label"] == 1, 0)
+
+# Limit the dates.
+train_3c = train_3c[(train_3c["day_of_year"] >= 180) & (train_3c["day_of_year"] <= 210)]
+X_train_3c = train_3c.iloc[:, 3:5]
+y_train_3c = train_3c.iloc[:, -1]
+# Fit the classifier.
+for_clf_3c.fit(X_train_3c, y_train_3c[:, np.newaxis])
+# Prepare test dataset.
+test_3c = test_final.copy()
+# Create training data only with relevant crops.
+test_3c = test_3c[test_3c["3c"] == True]
+test_3c["label"] = test_3c["label"].where(test_3c["label"] == 1, 0)
+
+# Limit the dates.
+test_3c = test_3c[(test_3c["day_of_year"] >= 180) & (test_3c["day_of_year"] <= 210)]
+X_test_3c = test_3c.iloc[:, 3:5]
+y_test_3c = test_3c.iloc[:, -1]
+# Predict y for 2a.
+y_pred_3c = for_clf_3c.predict(X_test_3c)
+# Accuracy.
+accuracy_3c = accuracy_score(y_test_3c, y_pred_3c)
+cm_3c = confusion_matrix(y_test_3c, y_pred_3c)
+# 69% Accuracy.
+
+###############################################################################
+# Train the classifier for 4a (WB, WW)
+###############################################################################
+for_clf_4a = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
+train_4a = train_final.copy()
+# Create training data only with relevant crops.
+train_4a = train_4a[train_4a["4a"] == True]
+train_4a["label"] = train_4a["label"].where(train_4a["label"] == 7, 0)
+
+# Limit the dates.
+train_4a = train_4a[(train_4a["day_of_year"] >= 90) & (train_4a["day_of_year"] <= 115)]
+X_train_4a = train_4a.iloc[:, 3:5]
+y_train_4a = train_4a.iloc[:, -1]
+# Fit the classifier.
+for_clf_4a.fit(X_train_4a, y_train_4a[:, np.newaxis])
+# Prepare test dataset.
+test_4a = test_final.copy()
+# Create training data only with relevant crops.
+test_4a = test_4a[test_4a["4a"] == True]
+test_4a["label"] = test_4a["label"].where(test_4a["label"] == 7, 0)
+
+# Limit the dates.
+test_4a = test_4a[(test_4a["day_of_year"] >= 90) & (test_4a["day_of_year"] <= 115)]
+X_test_4a = test_4a.iloc[:, 3:5]
+y_test_4a = test_4a.iloc[:, -1]
+# Predict y for 2a.
+y_pred_4a = for_clf_4a.predict(X_test_4a)
+# Accuracy.
+accuracy_4a = accuracy_score(y_test_4a, y_pred_4a)
+cm_4a = confusion_matrix(y_test_4a, y_pred_4a)
+# 90% accuracy (very wheat bias).
