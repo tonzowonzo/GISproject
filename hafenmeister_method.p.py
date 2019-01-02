@@ -73,12 +73,13 @@ Where:
 '''
 columns = ["date", "day_of_year", "month", "year", "last_crop", "ca", "b", "g",
            "r", "nir", "swir1",  "swir2", "pan", "cir", "tirs1", "tirs2", "ndvi",
+           "ndvi_ratio",
            "last_ca", "last_b", "last_g", "last_r", "last_nir", "last_swir1", 
            "last_swir2", "last_pan", "last_cir", "last_tirs1", "last_tirs2", 
            "lst", "label", "binary_label"]
 train_df = pd.DataFrame(columns=columns)
 test_df = pd.DataFrame(columns=columns)
-test_field_areas = ["EC3", "4", "5", "18_1", "33"]
+test_field_areas = ["1_1"]
 
 # Values for the first iteration only.
 last_ca = 0
@@ -165,13 +166,14 @@ for field in field_areas:
             
             # Calculate NDVI.
             ndvi = (nir - r) / (nir + r)
-
+            ndvi_ratio = ndvi * month
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
                     "year": year, "last_crop": last_crop, "ca": ca, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
                     "swir2": swir2, "pan": pan, "cir": cir, "tirs1": tirs1, 
-                    "tirs2": tirs2, "ndvi": ndvi, "last_ca": last_ca,
+                    "tirs2": tirs2, "ndvi": ndvi, "ndvi_ratio": ndvi_ratio,
+                    "last_ca": last_ca,
                     "last_b": last_b, "last_g": last_g, "last_r": last_r,
                     "last_nir": last_nir, "last_swir1": last_swir1, 
                     "last_swir2": last_swir2, "last_pan": last_pan,
@@ -289,13 +291,14 @@ for field in field_areas:
             
             # Calculate NDVI.
             ndvi = (nir - r) / (nir + r)
-            
+            ndvi_ratio = ndvi * month
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
                     "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
                     "swir2": swir2, "pan": pan, "cir": 0, "tirs1": tirs1, 
-                    "tirs2": 0, "ndvi": ndvi, "last_ca": 0,
+                    "tirs2": 0, "ndvi": ndvi, "ndvi_ratio": ndvi_ratio,
+                    "last_ca": 0,
                     "last_b": last_b, "last_g": last_g, "last_r": last_r,
                     "last_nir": last_nir, "last_swir1": last_swir1, 
                     "last_swir2": last_swir2, "last_pan": last_pan,
@@ -398,14 +401,17 @@ for field in field_areas:
             tirs1 = tirs1.ravel()
             
             # Calculate NDVI.
-            ndvi = (nir - r) / (nir + r)
-            
+            numer = nir - r
+            denom = nir + r
+            ndvi = numer / denom
+            ndvi_ratio = ndvi * month
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
                     "year": year, "last_crop": last_crop, "ca": 0, "b": b, 
                     "g": g, "r": r, "nir": nir, "swir1": swir1,  
                     "swir2": swir2, "pan": 0, "cir": 0, "tirs1": tirs1, 
-                    "tirs2": 0, "ndvi": ndvi, "last_ca": 0,
+                    "tirs2": 0, "ndvi": ndvi, "ndvi_ratio": ndvi_ratio,
+                    "last_ca": 0,
                     "last_b": last_b, "last_g": last_g, "last_r": last_r,
                     "last_nir": last_nir, "last_swir1": last_swir1, 
                     "last_swir2": last_swir2, "last_pan": 0,
@@ -452,6 +458,8 @@ for field in field_areas:
 ###############################################################################
 
 # Drop the black pixels in the dataframe.
+from sklearn.model_selection import train_test_split
+train_df, test_df = train_test_split(train_df, test_size=0.2)
 train_df = train_df[(train_df.r != 0) & (train_df.g != 0) & (train_df.b != 0)]
 test_df = test_df[(test_df.r != 0) & (test_df.g != 0) & (test_df.b != 0)]
 
@@ -570,8 +578,11 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
-X_train_no_last_crop = X_train[["day_of_year", "month", "b", "g", "r", "nir", "swir1", "tirs1", "ndvi"]]
-X_test_no_last_crop = X_test[["day_of_year", "month", "b", "g", "r", "nir", "swir1", "tirs1", "ndvi"]]
+X_train_no_last_crop = X_train[["day_of_year", "month", "b", "g", "r", "nir", "swir1", "ndvi"]]
+X_test_no_last_crop = X_test[["day_of_year", "month", "b", "g", "r", "nir", "swir1", "ndvi"]]
+#X_train_no_last_crop = X_train_no_last_crop[X_train_no_last_crop["month"] == 3]
+#X_test_no_last_crop = X_test_no_last_crop[X_test_no_last_crop["month"] == 3]
+
 X_train_no_last_crop["ndvi_ratio"] = X_train["month"] * X_train["ndvi"]
 X_test_no_last_crop["ndvi_ratio"] = X_test["month"] * X_test["ndvi"]
 rand_for_no_last_crop.fit(X_train_no_last_crop, y_train)
@@ -592,7 +603,8 @@ from xgboost import XGBClassifier
 
 X_train_no_last_crop = X_train_no_last_crop.reset_index()
 X_train_no_last_crop = X_train_no_last_crop.iloc[:, 1:]
-
+X_test_no_last_crop = X_test_no_last_crop.reset_index()
+X_test_no_last_crop = X_test_no_last_crop.iloc[:, 1:]
 # Define classifier.
 XGB_clf = XGBClassifier(learning_rate=0.02, n_estimators=200, silent=True,
                         objective="binary:logistic", scoring="roc_auc")
@@ -637,7 +649,7 @@ train_df["4a"] = (train_df["label"] == "WB") | (train_df["label"] == "WW")
 from sklearn.preprocessing import LabelEncoder
 # Get X and y training data
 train_final = train_df[["day_of_year", "month", "b", "g", "r", "nir", "swir1", 
-                        "tirs1", "ndvi", "2a", "2b",
+                       "ndvi", "ndvi_ratio", "2a", "2b",
                           "3c", "4a", "label"]]
 
 # Encode train labels.
@@ -668,7 +680,7 @@ test_df["4a"] = (test_df["label"] == "WB") | (test_df["label"] == "WW")
 from sklearn.preprocessing import LabelEncoder
 # Get X and y training data
 test_final = test_df[["day_of_year", "month", "b", "g", "r", "nir", "swir1", 
-                      "tirs1", "ndvi", "2a", "2b",
+                       "ndvi", "ndvi_ratio", "2a", "2b",
                           "3c", "4a", "label"]]
 # Encode train labels.
 test_final["label"] = encoder.transform(test_final["label"])
@@ -687,7 +699,8 @@ test_final["label"] = encoder.transform(test_final["label"])
 ###############################################################################
 # Train the classifier for 2a (WR vs WW and WB)
 ###############################################################################
-for_clf_2a = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
+for_clf_2a = XGB_clf = XGBClassifier(learning_rate=0.02, n_estimators=200, silent=True,
+                        objective="binary:logistic", scoring="roc_auc")
 train_2a = train_final.copy()
 # Create training data only with relevant crops.
 train_2a = train_2a[train_2a["2a"] == True]
@@ -695,7 +708,7 @@ train_2a["label"] = train_2a["label"].where(train_2a["label"] == 6, 0)
 
 # Limit the dates.
 train_2a = train_2a[(train_2a["day_of_year"] >= 120) & (train_2a["day_of_year"] <= 160)]
-X_train_2a = train_2a.iloc[:, :10]
+X_train_2a = train_2a.iloc[:, :9]
 y_train_2a = train_2a.iloc[:, -1]
 # Fit the classifier.
 for_clf_2a.fit(X_train_2a, y_train_2a[:, np.newaxis])
@@ -707,7 +720,7 @@ test_2a["label"] = test_2a["label"].where(test_2a["label"] == 6, 0)
 
 # Limit the dates.
 test_2a = test_2a[(test_2a["day_of_year"] >= 120) & (test_2a["day_of_year"] <= 180)]
-X_test_2a = test_2a.iloc[:, :10]
+X_test_2a = test_2a.iloc[:, :9]
 y_test_2a = test_2a.iloc[:, -1]
 # Predict y for 2a.
 y_pred_2a = for_clf_2a.predict(X_test_2a)
@@ -719,7 +732,8 @@ cm_2a = confusion_matrix(y_test_2a, y_pred_2a)
 ###############################################################################
 # Train the classifier for 3c (B from M)
 ###############################################################################
-for_clf_3c = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
+for_clf_3c = XGB_clf = XGBClassifier(learning_rate=0.02, n_estimators=200, silent=True,
+                        objective="binary:logistic", scoring="roc_auc")
 train_3c = train_final.copy()
 # Create training data only with relevant crops.
 train_3c = train_3c[train_3c["3c"] == True]
@@ -727,7 +741,7 @@ train_3c["label"] = train_3c["label"].where(train_3c["label"] == 1, 0)
 
 # Limit the dates.
 train_3c = train_3c[(train_3c["day_of_year"] >= 180) & (train_3c["day_of_year"] <= 210)]
-X_train_3c = train_3c.iloc[:, 0:10]
+X_train_3c = train_3c.iloc[:, :9]
 y_train_3c = train_3c.iloc[:, -1]
 # Fit the classifier.
 for_clf_3c.fit(X_train_3c, y_train_3c[:, np.newaxis])
@@ -739,7 +753,7 @@ test_3c["label"] = test_3c["label"].where(test_3c["label"] == 1, 0)
 
 # Limit the dates.
 test_3c = test_3c[(test_3c["day_of_year"] >= 180) & (test_3c["day_of_year"] <= 210)]
-X_test_3c = test_3c.iloc[:, 0:10]
+X_test_3c = test_3c.iloc[:, :9]
 y_test_3c = test_3c.iloc[:, -1]
 # Predict y for 2a.
 y_pred_3c = for_clf_3c.predict(X_test_3c)
@@ -751,7 +765,8 @@ cm_3c = confusion_matrix(y_test_3c, y_pred_3c)
 ###############################################################################
 # Train the classifier for 4a (WB, WW)
 ###############################################################################
-for_clf_4a = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
+for_clf_4a = XGB_clf = XGBClassifier(learning_rate=0.02, n_estimators=200, silent=True,
+                        objective="binary:logistic", scoring="roc_auc")
 train_4a = train_final.copy()
 # Create training data only with relevant crops.
 train_4a = train_4a[train_4a["4a"] == True]
@@ -759,7 +774,7 @@ train_4a["label"] = train_4a["label"].where(train_4a["label"] == 7, 0)
 
 # Limit the dates.
 train_4a = train_4a[(train_4a["day_of_year"] >= 90) & (train_4a["day_of_year"] <= 115)]
-X_train_4a = train_4a.iloc[:, 0:10]
+X_train_4a = train_4a.iloc[:, :9]
 y_train_4a = train_4a.iloc[:, -1]
 # Fit the classifier.
 for_clf_4a.fit(X_train_4a, y_train_4a[:, np.newaxis])
@@ -771,7 +786,7 @@ test_4a["label"] = test_4a["label"].where(test_4a["label"] == 7, 0)
 
 # Limit the dates.
 test_4a = test_4a[(test_4a["day_of_year"] >= 90) & (test_4a["day_of_year"] <= 115)]
-X_test_4a = test_4a.iloc[:, 0:10]
+X_test_4a = test_4a.iloc[:, :9]
 y_test_4a = test_4a.iloc[:, -1]
 # Predict y for 2a.
 y_pred_4a = for_clf_4a.predict(X_test_4a)
@@ -779,3 +794,9 @@ y_pred_4a = for_clf_4a.predict(X_test_4a)
 accuracy_4a = accuracy_score(y_test_4a, y_pred_4a)
 cm_4a = confusion_matrix(y_test_4a, y_pred_4a)
 # 90% accuracy (very wheat bias).
+
+from sklearn.externals import joblib
+joblib.dump(rand_for_no_last_crop, "binary_classifier.pkl")
+joblib.dump(for_clf_2a, "for_clf_2a.pkl")
+joblib.dump(for_clf_3c, "for_clf_3c.pkl")
+joblib.dump(for_clf_4a, "for_clf_4a.pkl")
