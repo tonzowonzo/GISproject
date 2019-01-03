@@ -165,7 +165,9 @@ for field in field_areas:
             tirs2 = tirs2.ravel()
             
             # Calculate NDVI.
-            ndvi = (nir - r) / (nir + r)
+            numer = nir - r
+            denom = nir + r
+            ndvi = numer / denom
             ndvi_ratio = ndvi * month
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
@@ -290,7 +292,9 @@ for field in field_areas:
             tirs1 = tirs1.ravel()
             
             # Calculate NDVI.
-            ndvi = (nir - r) / (nir + r)
+            numer = nir - r
+            denom = nir + r
+            ndvi = numer / denom
             ndvi_ratio = ndvi * month
             # Create the secondary dataframe to append to the full dataframe.
             data = {"date": date, "day_of_year": day_of_year, "month": month,
@@ -578,13 +582,15 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
-X_train_no_last_crop = X_train[["day_of_year", "month", "b", "g", "r", "nir", "swir1", "ndvi"]]
-X_test_no_last_crop = X_test[["day_of_year", "month", "b", "g", "r", "nir", "swir1", "ndvi"]]
+X_train_no_last_crop = X_train[["day_of_year", "b", "g", "r", "nir", "swir1", 
+                                "tirs1", "ndvi", "ndvi_ratio"]]
+X_test_no_last_crop = X_test[["day_of_year", "b", "g", "r", "nir", "swir1", 
+                              "tirs1", "ndvi", "ndvi_ratio"]]
 #X_train_no_last_crop = X_train_no_last_crop[X_train_no_last_crop["month"] == 3]
 #X_test_no_last_crop = X_test_no_last_crop[X_test_no_last_crop["month"] == 3]
 
-X_train_no_last_crop["ndvi_ratio"] = X_train["month"] * X_train["ndvi"]
-X_test_no_last_crop["ndvi_ratio"] = X_test["month"] * X_test["ndvi"]
+#X_train_no_last_crop["ndvi_ratio"] = X_train["month"] * X_train["ndvi"]
+#X_test_no_last_crop["ndvi_ratio"] = X_test["month"] * X_test["ndvi"]
 rand_for_no_last_crop.fit(X_train_no_last_crop, y_train)
 y_pred_no_last = rand_for_no_last_crop.predict(X_test_no_last_crop)
 accuracy_no_last = accuracy_score(y_test, y_pred_no_last)
