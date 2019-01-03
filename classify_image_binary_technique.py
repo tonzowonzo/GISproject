@@ -15,7 +15,7 @@ model_2a = joblib.load("for_clf_2a.pkl")
 model_3c = joblib.load("for_clf_3c.pkl")
 model_4a = joblib.load("for_clf_4a.pkl")
 path = r"C:/Users/Tim/Desktop/GIS/GISproject/ammertal_clf_area/"
-march = "20110321.tif"
+march = "20140329.tif"
 april = "20110422.tif"
 may = "20110508.tif"
 july = "20110719.tif"
@@ -32,9 +32,6 @@ def crop_classification(march, may, july, april):
     april: separation of wheat from barley and rye.
     '''
     # Create dataframe.
-    columns = ["month", "b", "g", "r", "nir", "swir1", 
-                      "tirs1", "ndvi", "ndvi_ratio", "2a", "2b",
-                          "3c", "4a", "label"]
     image_date = march.split(".")[0]
     image_date = pd.to_datetime(image_date, format="%Y%m%d")
     month = image_date.month
@@ -47,12 +44,14 @@ def crop_classification(march, may, july, april):
     nir_march = cv2.imread(path + "NIR/" + march, 0).ravel()
     swir1_march = cv2.imread(path + "swir1/" + march, 0).ravel()
     tirs1_march = cv2.imread(path + "tirs1/" + march, 0).ravel()
-    ndvi_march = (nir_march - r_march) / (nir_march + r_march)
+    numer = nir_march - r_march
+    denom = nir_march + r_march
+    ndvi_march = numer / denom
     ndvi_ratio_march = ndvi_march * month
     mask = np.where(nir_march == 0, 1, 0)
-    data = {"day_of_year": day_of_year, "month": month, "b": b_march,
-            "g": g_march, "r": r_march, "nir": nir_march, "ndvi": ndvi_march,
-            "swir1": swir1_march,
+    data = {"day_of_year": day_of_year,
+            "b": b_march, "g": g_march, "r": r_march, "nir": nir_march,
+            "swir1": swir1_march, "tirs1": tirs1_march, "ndvi": ndvi_march,
             "ndvi_ratio": ndvi_ratio_march, "mask": mask}
     dataframe_full = pd.DataFrame(data=data)
     dataframe_full = dataframe_full.replace([np.inf, -np.inf], np.nan)
@@ -64,23 +63,36 @@ def crop_classification(march, may, july, april):
 #    probas = np.where(probas[:, 1] <= 0.05, 2, 3)
     dataframe_full["1"] = binary_classifier.predict(
             dataframe_full.iloc[:, :-1])
-    return dataframe_full
+    probas = binary_classifier.predict_proba(
+            dataframe_full.iloc[:, :-2])
+    return dataframe_full, probas
 
     # Step two - classify rape vs barley where the crop is winter.
     
     
 r_march = r"C:\Users\Tim\Desktop\GIS\GISproject\landsat\landsat_8_8bit\LC08_L1TP_194026_20140313_20170425_01_T1_B3.tif"
 nir_march = r"C:\Users\Tim\Desktop\GIS\GISproject\landsat\landsat_8_8bit\LC08_L1TP_194026_20140313_20170425_01_T1_B4.tif"
-df = crop_classification(march, may, july, april)
+df, probas = crop_classification(march, may, july, april)
 
-def plot_output(df, initial_shape=(808, 942)):
+def plot_output(df, probas, initial_shape=(808, 942)):
     
     preds = df.iloc[:, -1]
-    preds[df["mask"] < 1] = 10
+    preds[df["mask"] == 1] = 2
     preds = preds.values
     preds = preds.reshape(initial_shape)
+    cv2.imwrite("test_ammertal.png", preds)
     plt.imshow(preds)
     plt.show()
+    preds = preds.reshape(initial_shape)
+    
+    # Plot probabilities.
+    for i in range(probas.shape[1]):
+        probas[df["mask"] == 1] = 0
+        probs = probas[:, i].reshape(initial_shape)
+        plt.imshow(probs)
+        plt.colorbar()
+        plt.show()
+        
     return preds
     
-preds = plot_output(df)
+preds = plot_output(df, probas)
