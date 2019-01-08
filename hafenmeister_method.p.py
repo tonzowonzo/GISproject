@@ -582,9 +582,9 @@ joblib.dump(rand_for, "random_forest_2.pkl")
 
 # Random forest for without last crop info (1st classification)
 rand_for_no_last_crop = RandomForestClassifier(bootstrap=True, n_estimators=500, random_state=42)
-X_train_no_last_crop = X_train[["day_of_year", "b", "g", "r", "nir", "swir1", 
+X_train_no_last_crop = X_train[["day_of_year", "month", "year", "b", "g", "r", "nir", "swir1", 
                                 "tirs1", "ndvi", "ndvi_ratio"]]
-X_test_no_last_crop = X_test[["day_of_year", "b", "g", "r", "nir", "swir1", 
+X_test_no_last_crop = X_test[["day_of_year", "month", "year", "b", "g", "r", "nir", "swir1", 
                               "tirs1", "ndvi", "ndvi_ratio"]]
 #X_train_no_last_crop = X_train_no_last_crop[X_train_no_last_crop["month"] == 3]
 #X_test_no_last_crop = X_test_no_last_crop[X_test_no_last_crop["month"] == 3]
@@ -654,9 +654,10 @@ train_df["4a"] = (train_df["label"] == "WB") | (train_df["label"] == "WW")
 # Encode labels.
 from sklearn.preprocessing import LabelEncoder
 # Get X and y training data
-train_final = train_df[["day_of_year", "month", "b", "g", "r", "nir", "swir1", 
-                       "ndvi", "ndvi_ratio", "2a", "2b",
+train_final = train_df[["day_of_year", "month", "year", "b", "g", "r", "nir", "swir1", 
+                       "tirs1", "ndvi", "ndvi_ratio", "2a", "2b",
                           "3c", "4a", "label"]]
+#train_final = train_final[train_final["year"] == 2011]
 
 # Encode train labels.
 encoder = LabelEncoder()
@@ -685,11 +686,12 @@ test_df["4a"] = (test_df["label"] == "WB") | (test_df["label"] == "WW")
 # Encode labels.
 from sklearn.preprocessing import LabelEncoder
 # Get X and y training data
-test_final = test_df[["day_of_year", "month", "b", "g", "r", "nir", "swir1", 
-                       "ndvi", "ndvi_ratio", "2a", "2b",
+test_final = test_df[["day_of_year", "month", "year", "b", "g", "r", "nir", "swir1", 
+                       "tirs1", "ndvi", "ndvi_ratio", "2a", "2b",
                           "3c", "4a", "label"]]
 # Encode train labels.
 test_final["label"] = encoder.transform(test_final["label"])
+#test_final = test_final[test_final["year"] == 2011]
 
 # Labels are as follows:
 '''
@@ -714,7 +716,7 @@ train_2a["label"] = train_2a["label"].where(train_2a["label"] == 6, 0)
 
 # Limit the dates.
 train_2a = train_2a[(train_2a["day_of_year"] >= 120) & (train_2a["day_of_year"] <= 160)]
-X_train_2a = train_2a.iloc[:, :9]
+X_train_2a = train_2a.iloc[:, :11]
 y_train_2a = train_2a.iloc[:, -1]
 # Fit the classifier.
 for_clf_2a.fit(X_train_2a, y_train_2a[:, np.newaxis])
@@ -726,7 +728,7 @@ test_2a["label"] = test_2a["label"].where(test_2a["label"] == 6, 0)
 
 # Limit the dates.
 test_2a = test_2a[(test_2a["day_of_year"] >= 120) & (test_2a["day_of_year"] <= 180)]
-X_test_2a = test_2a.iloc[:, :9]
+X_test_2a = test_2a.iloc[:, :11]
 y_test_2a = test_2a.iloc[:, -1]
 # Predict y for 2a.
 y_pred_2a = for_clf_2a.predict(X_test_2a)
@@ -747,7 +749,7 @@ train_3c["label"] = train_3c["label"].where(train_3c["label"] == 1, 0)
 
 # Limit the dates.
 train_3c = train_3c[(train_3c["day_of_year"] >= 180) & (train_3c["day_of_year"] <= 210)]
-X_train_3c = train_3c.iloc[:, :9]
+X_train_3c = train_3c.iloc[:, :11]
 y_train_3c = train_3c.iloc[:, -1]
 # Fit the classifier.
 for_clf_3c.fit(X_train_3c, y_train_3c[:, np.newaxis])
@@ -759,7 +761,7 @@ test_3c["label"] = test_3c["label"].where(test_3c["label"] == 1, 0)
 
 # Limit the dates.
 test_3c = test_3c[(test_3c["day_of_year"] >= 180) & (test_3c["day_of_year"] <= 210)]
-X_test_3c = test_3c.iloc[:, :9]
+X_test_3c = test_3c.iloc[:, :11]
 y_test_3c = test_3c.iloc[:, -1]
 # Predict y for 2a.
 y_pred_3c = for_clf_3c.predict(X_test_3c)
@@ -780,7 +782,7 @@ train_4a["label"] = train_4a["label"].where(train_4a["label"] == 7, 0)
 
 # Limit the dates.
 train_4a = train_4a[(train_4a["day_of_year"] >= 90) & (train_4a["day_of_year"] <= 115)]
-X_train_4a = train_4a.iloc[:, :9]
+X_train_4a = train_4a.iloc[:, :11]
 y_train_4a = train_4a.iloc[:, -1]
 # Fit the classifier.
 for_clf_4a.fit(X_train_4a, y_train_4a[:, np.newaxis])
@@ -792,7 +794,7 @@ test_4a["label"] = test_4a["label"].where(test_4a["label"] == 7, 0)
 
 # Limit the dates.
 test_4a = test_4a[(test_4a["day_of_year"] >= 90) & (test_4a["day_of_year"] <= 115)]
-X_test_4a = test_4a.iloc[:, :9]
+X_test_4a = test_4a.iloc[:, :11]
 y_test_4a = test_4a.iloc[:, -1]
 # Predict y for 2a.
 y_pred_4a = for_clf_4a.predict(X_test_4a)
@@ -802,7 +804,7 @@ cm_4a = confusion_matrix(y_test_4a, y_pred_4a)
 # 90% accuracy (very wheat bias).
 
 from sklearn.externals import joblib
-joblib.dump(rand_for_no_last_crop, "binary_classifier.pkl")
+joblib.dump(XGB_clf, "binary_classifier.pkl")
 joblib.dump(for_clf_2a, "for_clf_2a.pkl")
 joblib.dump(for_clf_3c, "for_clf_3c.pkl")
 joblib.dump(for_clf_4a, "for_clf_4a.pkl")
