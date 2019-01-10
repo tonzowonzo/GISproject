@@ -39,21 +39,21 @@ def crop_classification(march, may, july, april):
     day_of_year = image_date.timetuple().tm_yday
     
     # Step one - classify summer vs winter crop.
-    b_march = cv2.imread(path + "B/" + march, 0).ravel()
-    g_march = cv2.imread(path + "G/" + march, 0).ravel()
-    r_march = cv2.imread(path + "R/" + march, 0).ravel()
-    nir_march = cv2.imread(path + "NIR/" + march, 0).ravel()
-    swir1_march = cv2.imread(path + "swir1/" + march, 0).ravel()
-    tirs1_march = cv2.imread(path + "tirs1/" + march, 0).ravel()
-    numer = nir_march - r_march
-    denom = nir_march + r_march
-    ndvi_march = numer / denom
-    ndvi_ratio_march = ndvi_march * month
-    mask = np.where(nir_march == 0, 1, 0)
-    data = {"day_of_year": day_of_year, "month": month, "year": year,
-            "b": b_march, "g": g_march, "r": r_march, "nir": nir_march,
-            "swir1": swir1_march, "tirs1": tirs1_march, "ndvi": ndvi_march,
-            "ndvi_ratio": ndvi_ratio_march, "mask": mask}
+    b = cv2.imread(path + "B/" + march, 0).ravel()
+    g = cv2.imread(path + "G/" + march, 0).ravel()
+    r = cv2.imread(path + "R/" + march, 0).ravel()
+    nir = cv2.imread(path + "NIR/" + march, 0).ravel()
+    swirs1 = cv2.imread(path + "swir1/" + march, 0).ravel()
+    tirs1 = cv2.imread(path + "tirs1/" + march, 0).ravel()
+    numer = nir - r
+    denom = nir + r
+    ndvi = numer / denom
+    ndvi_ratio = ndvi * month
+    mask = np.where(nir == 0, 1, 0)
+    data = {"month": month, "year": year,
+            "b": b, "g": g, "r": r, "nir": nir,
+            "swir1": swirs1, "tirs1": tirs1, "ndvi": ndvi,
+            "ndvi_ratio": ndvi_ratio, "mask": mask}
     dataframe_full = pd.DataFrame(data=data)
     dataframe_full = dataframe_full.replace([np.inf, -np.inf], np.nan)
     dataframe_full = dataframe_full.fillna(-1)
@@ -69,45 +69,107 @@ def crop_classification(march, may, july, april):
     
     # Classify winter rape vs winter wheat.
     # Remake dataframe.
-    image_date = april.split(".")[0]
+    image_date = may.split(".")[0]
     image_date = pd.to_datetime(image_date, format="%Y%m%d")
     month = image_date.month
     year = image_date.year
     day_of_year = image_date.timetuple().tm_yday
-    b_april = cv2.imread(path + "B/" + april, 0)
-    b_april = cv2.resize(b_april, (808, 942)).ravel()
-    g_april = cv2.imread(path + "G/" + april, 0).ravel()
-    g_april = cv2.resize(g_april, (808, 942)).ravel()
-    r_april = cv2.imread(path + "R/" + april, 0).ravel()
-    r_april = cv2.resize(r_april, (808, 942)).ravel()
-    nir_april = cv2.imread(path + "NIR/" + april, 0).ravel()
-    nir_april = cv2.resize(nir_april, (808, 942)).ravel()
-    swir1_april = cv2.imread(path + "swir1/" + april, 0).ravel()
-    swir1_april = cv2.resize(swir1_april, (808, 942)).ravel()
-    tirs1_april = cv2.imread(path + "tirs1/" + april, 0).ravel()
-    tirs1_april = cv2.resize(tirs1_april, (808, 942)).ravel()
-    numer = nir_april - r_april
-    denom = nir_april + r_april
-    ndvi_april = numer / denom
-    ndvi_ratio_april = ndvi_april * month
-    data = {"day_of_year": day_of_year, "month": month, "year": year,
-            "b": b_april, "g": g_april, "r": r_april, "nir": nir_april,
-            "swir1": swir1_april, "tirs1": tirs1_april, "ndvi": ndvi_april,
-            "ndvi_ratio": ndvi_ratio_april, "mask": mask}
+    b = cv2.imread(path + "B/" + may, 0)
+    b = cv2.resize(b, (808, 942)).ravel()
+    g = cv2.imread(path + "G/" + may, 0)
+    g = cv2.resize(g, (808, 942)).ravel()
+    r = cv2.imread(path + "R/" + may, 0)
+    r = cv2.resize(r, (808, 942)).ravel()
+    nir = cv2.imread(path + "NIR/" + may, 0)
+    nir = cv2.resize(nir, (808, 942)).ravel()
+    swir1 = cv2.imread(path + "swir1/" + may, 0)
+    swir1 = cv2.resize(swir1, (808, 942)).ravel()
+    tirs1 = cv2.imread(path + "tirs1/" + may, 0)
+    tirs1 = cv2.resize(tirs1, (808, 942)).ravel()
+    numer = nir - r
+    denom = nir + r
+    ndvi = numer / denom
+    ndvi_ratio = ndvi * month
+    data = {"month": month, "year": year,
+            "b": b, "g": g, "r": r, "nir": nir,
+            "swir1": swir1, "tirs1": tirs1, "ndvi": ndvi,
+            "ndvi_ratio": ndvi_ratio, "mask": mask}
     dataframe_2a = pd.DataFrame(data=data)
     dataframe_2a = dataframe_2a.replace([np.inf, -np.inf], np.nan)
     dataframe_2a = dataframe_2a.fillna(-1)
     dataframe_2a["2a"] = -1
     preds_2a = model_2a.predict(dataframe_2a.iloc[:, :-2])
-    print(preds_2a.max())
     dataframe_full["2a"] = np.where(dataframe_full["1"] == 0,
                   -1, preds_2a)
     
     # Sugarbeet from corn.
-#    dataframe_full["3c"] = -1
-#    preds_3c = model_3c.predict(dataframe_full.iloc[:, :-4])
-#    dataframe_full["3c"] = np.where(dataframe_full["1"] == 1,
-#                  -1, preds_3c)
+    image_date = july.split(".")[0]
+    image_date = pd.to_datetime(image_date, format="%Y%m%d")
+    month = image_date.month
+    year = image_date.year
+    day_of_year = image_date.timetuple().tm_yday
+    b = cv2.imread(path + "B/" + july, 0)
+    b = cv2.resize(b, (808, 942)).ravel()
+    g = cv2.imread(path + "G/" + july, 0)
+    g = cv2.resize(g, (808, 942)).ravel()
+    r = cv2.imread(path + "R/" + july, 0)
+    r = cv2.resize(r, (808, 942)).ravel()
+    nir = cv2.imread(path + "NIR/" + july, 0)
+    nir = cv2.resize(nir, (808, 942)).ravel()
+    swir1 = cv2.imread(path + "swir1/" + july, 0)
+    swir1 = cv2.resize(swir1, (808, 942)).ravel()
+    tirs1 = cv2.imread(path + "tirs1/" + july, 0)
+    tirs1 = cv2.resize(tirs1, (808, 942)).ravel()
+    numer = nir - r
+    denom = nir + r
+    ndvi = numer / denom
+    ndvi_ratio = ndvi * month
+    data = {"month": month, "year": year,
+            "b": b, "g": g, "r": r, "nir": nir,
+            "swir1": swir1, "tirs1": tirs1, "ndvi": ndvi,
+            "ndvi_ratio": ndvi_ratio, "mask": mask}
+    dataframe_3c = pd.DataFrame(data=data)
+    dataframe_3c = dataframe_3c.replace([np.inf, -np.inf], np.nan)
+    dataframe_3c = dataframe_3c.fillna(-1)
+    dataframe_3c["3c"] = -1
+    preds_3c = model_3c.predict(dataframe_3c.iloc[:, :-2])
+    dataframe_full["3c"] = np.where(dataframe_full["1"] == 1,
+                  -1, preds_3c)
+    
+    # Wheat from barley.
+    image_date = april.split(".")[0]
+    image_date = pd.to_datetime(image_date, format="%Y%m%d")
+    month = image_date.month
+    year = image_date.year
+    day_of_year = image_date.timetuple().tm_yday
+    b = cv2.imread(path + "B/" + april, 0)
+    b = cv2.resize(b, (808, 942)).ravel()
+    g = cv2.imread(path + "G/" + april, 0)
+    g = cv2.resize(g, (808, 942)).ravel()
+    r = cv2.imread(path + "R/" + april, 0)
+    r = cv2.resize(r, (808, 942)).ravel()
+    nir = cv2.imread(path + "NIR/" + april, 0)
+    nir = cv2.resize(nir, (808, 942)).ravel()
+    swir1 = cv2.imread(path + "swir1/" + april, 0)
+    swir1 = cv2.resize(swir1, (808, 942)).ravel()
+    tirs1 = cv2.imread(path + "tirs1/" + april, 0)
+    tirs1 = cv2.resize(tirs1, (808, 942)).ravel()
+    numer = nir - r
+    denom = nir + r
+    ndvi = numer / denom
+    ndvi_ratio = ndvi * month
+    data = {"month": month, "year": year,
+            "b": b, "g": g, "r": r, "nir": nir,
+            "swir1": swir1, "tirs1": tirs1, "ndvi": ndvi,
+            "ndvi_ratio": ndvi_ratio, "mask": mask}
+    dataframe_4a = pd.DataFrame(data=data)
+    dataframe_4a = dataframe_4a.replace([np.inf, -np.inf], np.nan)
+    dataframe_4a = dataframe_4a.fillna(-1)
+    dataframe_4a["4a"] = -1
+    preds_4c = model_4a.predict(dataframe_4a.iloc[:, :-2])
+    dataframe_full["4a"] = np.where(dataframe_full["1"] == 1,
+                  -1, preds_4c)
+    
     return dataframe_full, probas
 
     # Step two - classify rape vs barley where the crop is winter.
