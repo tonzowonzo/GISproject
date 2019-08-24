@@ -28,10 +28,12 @@ def get_label(field_area, date):
         Irrelevant: Crop not being classified
     '''
     # If the crop is either a cover crop or no cover (during winter).
+    label = "irrelevant"
+    last_crop = "unknown"
     if date.month > 8 or date.month < 3:
         label = "irrelevant"
         last_crop = "unknown"
-    elif date.year >= 2018:
+    elif date.year >= 2019:
         label = "irrelevant"
         last_crop = "unknown"
         
@@ -926,17 +928,75 @@ def get_label(field_area, date):
             label = "irrelevant"
             last_crop = "unknown"
             
+    if field_area == "1_2019":
+        if date < datetime.datetime(2019, 12, 1):
+            label = "WW"
+            last_crop = "unknown"
+    elif field_area == "2_2019":
+        if date < datetime.datetime(2019, 12, 1):
+            label = "WB"
+            last_crop = "unknown"
+    elif field_area == "3_2019":
+        if date < datetime.datetime(2019, 12, 1):
+            label = "WB"
+            last_crop = "unknown"
+    elif field_area == "4_2019":
+        if date < datetime.datetime(2019, 12, 1):
+            label = "SB"
+            last_crop = "unknown"
+    elif field_area == "5_2019":
+        if date < datetime.datetime(2019, 12, 1):
+            label = "SB"
+            last_crop = "unknown"
+    elif field_area == "7_2019":
+        if date < datetime.datetime(2019, 12, 1):
+            label = "SM"
+            last_crop = "unknown"
+    elif field_area == "8_2019":
+        if date < datetime.datetime(2019, 12, 1):
+            label = "WW"
+            last_crop = "unknown"
+    elif field_area == "10_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "11_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "12_2019":
+        label = "SM"
+        last_crop = "unknown"
+    elif field_area == "13_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "14_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "15_2019":
+        label = "WR"
+        last_crop = "unknown"
+    elif field_area == "16_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "17_2019":
+        label = "SB"
+        last_crop = "unknown"
+    elif field_area == "18_2019":
+        label = "C"
+        last_crop = "unknown"
+    elif field_area == "19_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "20_2019":
+        label = "C"
+        last_crop = "unknown"
     elif field_area == "Cloud":
         label = "Cloud"
         last_crop = "unknown"
     elif field_area == "CloudShadow":
         label = "CloudShadow"
         last_crop = "unknown"
-    else:
-        label = "irrelevant"
-        last_crop = "unknown"
 
-
+    last_crop = "unknown"
             
             
     return label, last_crop
