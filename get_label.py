@@ -25,6 +25,7 @@ def get_label(field_area, date):
         P: Peas
         LU: Luzerne
         SOY: Soja
+        ME: Meadow
         Irrelevant: Crop not being classified
     '''
     # If the crop is either a cover crop or no cover (during winter).
@@ -988,6 +989,132 @@ def get_label(field_area, date):
         last_crop = "unknown"
     elif field_area == "20_2019":
         label = "C"
+        last_crop = "unknown"
+    elif field_area == "21_2019":
+        label = "TC"
+        last_crop = "unknown"
+    elif field_area == "22_2019":
+        label = "WR"
+        last_crop = "unknown"
+    elif field_area == "23_2019":
+        label = "WR"
+        last_crop = "unknown"
+    elif field_area == "24_2019":
+        label = "B"
+        last_crop = "unknown"
+    elif field_area == "25_2019":
+        label = "R"
+        last_crop = "unknown"
+    elif field_area == "26_2019":
+        label = "SB"
+        last_crop = "unknown"
+    elif field_area == "27_2019":
+        label = "B"
+        last_crop = "unknown"
+    elif field_area == "28_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "29_2019":
+        label = "WB"
+        last_crop = "unknown"
+    elif field_area == "30_2019":
+        label = "WR"
+        last_crop = "unknown"
+    elif field_area == "31_2019":
+        label = "irrelevant"
+        last_crop = "unknown"
+    elif field_area == "32_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "33_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "34_2019":
+        label = "WB"
+        last_crop = "unknown"
+    elif field_area == "35_2019":
+        label = "ME"
+        last_crop = "unknown"
+    elif field_area == "36_2019":
+        label = "ME"
+        last_crop = "unknown"
+    elif field_area == "37_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "38_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "39_2019":
+        label = "SM"
+        last_crop = "unknown"
+    elif field_area == "40_2019":
+        label = "SB"
+        last_crop = "unknown"
+    elif field_area == "41_2019":
+        label = "irrelevant"
+        last_crop = "unknown"
+    elif field_area == "42_2019":
+        label = "SM"
+        last_crop = "unknown"
+    elif field_area == "43_2019":
+        label = "WR"
+        last_crop = "unknown"
+    elif field_area == "44_2019":
+        label = "WR"
+        last_crop = "unknown"
+    elif field_area == "45_2019":
+        label = "WB"
+        last_crop = "unknown"
+    elif field_area == "46_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "47_2019":
+        label = "SB"
+        last_crop = "unknown"
+    elif field_area == "48_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "49_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "50_2019":
+        label = "SM"
+        last_crop = "unknown"
+    elif field_area == "51_2019":
+        label = "ME"
+        last_crop = "unknown"
+    elif field_area == "52_2019":
+        label = "ME"
+        last_crop = "unknown"
+    elif field_area == "53_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "54_2019":
+        label = "WB"
+        last_crop = "unknown"
+    elif field_area == "55_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "56_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "57_2019":
+        label = "WR"
+        last_crop = "unknown"
+    elif field_area == "58_2019":
+        label = "irrelevant"
+        last_crop = "unknown"
+    elif field_area == "59_2019":
+        label = "WW"
+        last_crop = "unknown"
+    elif field_area == "60_2019":
+        label = "C"
+        last_crop = "unknown"
+    elif field_area == "61_2019":
+        label = "ME"
+        last_crop = "unknown"
+    elif field_area == "62_2019":
+        label = "ME"
         last_crop = "unknown"
     elif field_area == "Cloud":
         label = "Cloud"
