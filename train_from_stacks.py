@@ -30,8 +30,11 @@ years = [#"2008", "2009", "2010", "2011",
 # The bands it will be trained on.
 bands = ["1", "2", "3", "4", "5", "7"]
 # Field areas to be trained on.
-tiles = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6",
-               #"final_farmland_polygon"
+tiles = ["EC1", "EC2", "EC3", "EC4", "EC5", "EC6", 
+         "1_1", "1_2", "1_3", "1_4", 
+         "1_5", "2", "3", "4", "5", "6", "7",
+         "8", "9", "10", "11", "12", "13", "14", "15", "16", "17",
+         #"final_farmland_polygon"
                ] + [str(i + 1) + "_2019" for i in range(110)]
 
 # Labels for summer and winter crop classification.
@@ -81,11 +84,24 @@ for year in years:
         print(tile, date)
         label = get_label(tile, date)
         temp_df["Label"] = label[0]
+        
         if label[0] in summer_crops:
             temp_df["Summer_Or_Winter"] = 0
         else:
             temp_df["Summer_Or_Winter"] = 1
+        
+        if label[0] == "ME":
+            temp_df["Label"] = "C"
+        elif label[0] == "SP":
+            temp_df["Label"] = "WW"
+            
+            
         temp_df["Tile"] = tile
+        
+        if label[0] in ["MU", "LU"]:
+            df = df.append(temp_df)
+            temp_df = pd.DataFrame(columns=columns)
+            continue
         #if tile != "final_farmland_polygon":
          #   temp_df = temp_df.dropna(thresh=8)
           #  temp_df = temp_df.fillna(axis=1, method="ffill")
@@ -93,7 +109,7 @@ for year in years:
         
         # Append the temp df to the final df and then reset it so it's empty.
         rand = random.randint(0, 100)
-        if rand >= 25:
+        if rand >= 10:
             df = df.append(temp_df)
         else:
             df_test = df_test.append(temp_df)
@@ -102,6 +118,8 @@ for year in years:
 # Split the ammertal area from the rest of the field areas.
 df_ammertal = df[df["Tile"] == "final_farmland_polygon"]
 df = df[df["Tile"] != "final_farmland_polygon"]
+df["Year"] = df["Year"] - 2008
+df_test["Year"] = df_test["Year"] - 2008
 
 # Drop columns where more than 8 values are np.nan.
 df = df.dropna(thresh=8)
@@ -118,17 +136,16 @@ df_test = df_test[columns]
 """
 0: Beet
 1: Clover
-2: Meadow
+2: Alfalfa
 3: Oats
 4: Rye
 5: Spring Barley
 6: Silomaise
 7: Soy
 8: Spelt
-9: Triticale
-10: Winter barley
-11: Winter Rapeseed
-12: Winter wheat
+9: Winter barley
+10: Winter Rapeseed
+11: Winter wheat
 """
 
 # Renew the index so it starts at 0 again.
@@ -232,6 +249,28 @@ print(np.unique(y_pred))
 print(y_test.unique())
 uniques = set(sorted(list(y_test.unique()) + list(np.unique(y_pred_xgb))))
 print(list(uniques))
+
+# Make a voting classifier.
+from sklearn.ensemble import VotingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+clf1 = RandomForestClassifier(n_estimators=500, random_state=1)
+clf2 = LogisticRegression(solver='lbfgs', multi_class='multinomial',
+                           random_state=1)
+clf3 = XGBClassifier(n_estimators=500, n_jobs=-1)
+clf4 = GaussianNB()
+eclf = VotingClassifier(estimators=[('rf', clf1), ('lr', clf2), ('xgb', clf3),
+                                    ], voting='hard')
+clf1.fit(X_train, y_train)
+clf2.fit(X_train, y_train)
+clf3.fit(X_train, y_train)
+clf4.fit(X_train, y_train)
+eclf.fit(X_train, y_train)
+
+y_pred_voting = eclf.predict(X_test)
+
+accuracy_voting = accuracy_score(y_test, y_pred_voting)
+
 # Test summer or winter.
 y = df.iloc[:, -3].astype("int")
 X = df.iloc[:, :-4]
@@ -247,6 +286,8 @@ print(rand_for_summer.feature_importances_)
 # Predict values
 y_pred = rand_for_summer.predict(X_test)
 y_pred_xgb = xgb_summer.predict(X_test)
+
+
 
 # Get scores of the classifier.
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
